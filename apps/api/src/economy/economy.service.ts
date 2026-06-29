@@ -96,7 +96,12 @@ export class EconomyService {
     };
   }
 
-  /** Chatda sovg'a yuborish — faqat match a'zolari, balansdan yechiladi. */
+  /**
+   * Chatда sovg'a yuborish — faqat match a'zolari. Atomik tranzaksiya:
+   * - race'ga qarshi shartli decrement (faqat balans yetsa, manfiyga tushmaydi);
+   * - faqat SOTIB OLINGAN tanga (paidCoinBalance) oluvchining yechiladigan
+   *   so'miga aylanadi — bepul/promo tanga real pul yaratmaydi (teshik yopiq).
+   */
   async sendGift(senderId: string, matchId: string, giftKey: string) {
     const gift = findGift(giftKey);
     if (!gift) throw new BadRequestException('Sovg\'a topilmadi');
@@ -108,30 +113,45 @@ export class EconomyService {
     }
     const receiverId = match.userAId === senderId ? match.userBId : match.userAId;
 
-    const sender = await this.prisma.user.findUnique({ where: { id: senderId }, select: { coinBalance: true } });
-    if (!sender || sender.coinBalance < gift.coinPrice) {
-      throw new BadRequestException('Tanga yetarli emas');
-    }
-
     const cfg = await this.settings.get();
-    const earnedSom = Math.round(gift.coinPrice * cfg.coinToSom * (cfg.receiverSharePercent / 100));
 
-    const [, , , message] = await this.prisma.$transaction([
-      this.prisma.user.update({
+    const { message, coinBalance } = await this.prisma.$transaction(async (tx) => {
+      const sender = await tx.user.findUnique({
         where: { id: senderId },
-        data: { coinBalance: { decrement: gift.coinPrice } },
-      }),
-      this.prisma.user.update({
-        where: { id: receiverId },
-        data: { walletBalance: { increment: earnedSom } },
-      }),
-      this.prisma.giftTransaction.create({
+        select: { coinBalance: true, paidCoinBalance: true },
+      });
+      if (!sender || sender.coinBalance < gift.coinPrice) {
+        throw new BadRequestException('Tanga yetarli emas');
+      }
+      // Sotib olingan tangani birinchi sarflaymiz — faqat shu ulush so'mga aylanadi
+      const paidUsed = Math.min(gift.coinPrice, sender.paidCoinBalance);
+      const earnedSom = Math.round(paidUsed * cfg.coinToSom * (cfg.receiverSharePercent / 100));
+
+      // Shartli decrement — bir vaqtli sovg'alarda balans manfiyga tushmaydi
+      const dec = await tx.user.updateMany({
+        where: { id: senderId, coinBalance: { gte: gift.coinPrice } },
+        data: {
+          coinBalance: { decrement: gift.coinPrice },
+          paidCoinBalance: { decrement: paidUsed },
+        },
+      });
+      if (dec.count !== 1) throw new BadRequestException('Tanga yetarli emas');
+
+      if (earnedSom > 0) {
+        await tx.user.update({
+          where: { id: receiverId },
+          data: { walletBalance: { increment: earnedSom } },
+        });
+      }
+      await tx.giftTransaction.create({
         data: { fromUserId: senderId, toUserId: receiverId, matchId, giftKey, coinAmount: gift.coinPrice, earnedSom },
-      }),
-      this.prisma.message.create({
+      });
+      const message = await tx.message.create({
         data: { matchId, senderId, type: 'GIFT', content: giftKey },
-      }),
-    ]);
+      });
+      const updated = await tx.user.findUnique({ where: { id: senderId }, select: { coinBalance: true } });
+      return { message, coinBalance: updated!.coinBalance };
+    });
 
     // Oluvchini xabardor qilamiz (real-time + offline'da Telegram push)
     this.chatGateway.notifyNewMessage(receiverId, message);
@@ -148,8 +168,7 @@ export class EconomyService {
       }
     })();
 
-    const updated = await this.prisma.user.findUnique({ where: { id: senderId }, select: { coinBalance: true } });
-    return { coinBalance: updated!.coinBalance, message };
+    return { coinBalance, message };
   }
 
   /**

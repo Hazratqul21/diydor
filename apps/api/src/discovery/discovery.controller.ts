@@ -18,7 +18,7 @@ export class DiscoveryController {
 
   @Post('swipes')
   swipe(@CurrentUser('id') userId: string, @Body() dto: SwipeDto) {
-    return this.discovery.swipe(userId, dto.toUserId, dto.action);
+    return this.discovery.swipe(userId, dto.toUserId, dto.action, dto.message);
   }
 
   @Get('likes-you')

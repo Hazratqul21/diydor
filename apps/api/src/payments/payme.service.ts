@@ -284,11 +284,15 @@ export class PaymeService {
           data: { subscriptionTier: order.subTier!, subscriptionUntil: until },
         });
     }
-    // COIN_PURCHASE (default)
+    // COIN_PURCHASE (default) — sotib olingan tanga paidCoinBalance'ga ham
+    // qo'shiladi (faqat shu ulush sovg'ada yechiladigan so'mga aylanadi).
     return () =>
       this.prisma.user.update({
         where: { id: order.userId },
-        data: { coinBalance: { increment: order.coins } },
+        data: {
+          coinBalance: { increment: order.coins },
+          paidCoinBalance: { increment: order.coins },
+        },
       });
   }
 
@@ -315,7 +319,10 @@ export class PaymeService {
     return () =>
       this.prisma.user.update({
         where: { id: order.userId },
-        data: { coinBalance: { decrement: order.coins } },
+        data: {
+          coinBalance: { decrement: order.coins },
+          paidCoinBalance: { decrement: order.coins },
+        },
       });
   }
 

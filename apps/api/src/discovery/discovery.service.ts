@@ -3,7 +3,7 @@ import { Gender, Prisma, SwipeAction } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { serializeUser } from '../common/serialize-user';
 import { AppSettingsService } from '../common/settings/app-settings.service';
-import { hasTierAtLeast, isSubscribed } from '../common/subscription.util';
+import { TIER_RANK, effectiveTier, hasTierAtLeast, isSubscribed } from '../common/subscription.util';
 import { ChatGateway } from '../matches/chat.gateway';
 import { TelegramNotifyService } from '../notifications/telegram-notify.service';
 
@@ -40,7 +40,7 @@ export class DiscoveryService {
       id: { notIn: excludeIds },
       isBanned: false,
       gender: { not: null },
-      photos: { some: {} }, // kamida bitta rasmi bor
+      photos: { some: { moderationStatus: 'APPROVED' } }, // kamida bitta KO'RSATILADIGAN rasm
     };
 
     if (nearby) {
@@ -56,30 +56,56 @@ export class DiscoveryService {
       where.OR = [{ seekingGender: 'EVERYONE' }, { seekingGender: me.gender }];
     }
 
-    const candidates = await this.prisma.user.findMany({
+    // Prioritet saralash uchun kerakli darajada ko'proq nomzod olamiz
+    const pool = await this.prisma.user.findMany({
       where,
       include: {
         photos: { where: { moderationStatus: 'APPROVED' }, orderBy: { order: 'asc' } },
         prompts: { orderBy: { order: 'asc' } },
       },
-      take: limit,
+      take: Math.max(limit * 3, 30),
       orderBy: { lastActiveAt: 'desc' },
     });
 
-    return candidates.map(serializeUser);
+    // Premium prioritet ("Profilingiz yuqorida"): yuqori tier obunachilar
+    // navbatda oldinroq, keyin so'nggi faollik bo'yicha.
+    return pool
+      .sort(
+        (a, b) =>
+          TIER_RANK[effectiveTier(b)] - TIER_RANK[effectiveTier(a)] ||
+          b.lastActiveAt.getTime() - a.lastActiveAt.getTime(),
+      )
+      .slice(0, limit)
+      .map(serializeUser);
   }
 
   /** Svayp: LIKE/SUPERLIKE bo'lsa o'zaro yoqtirishni tekshirib match yaratadi. */
-  async swipe(meId: string, toUserId: string, action: SwipeAction) {
+  async swipe(meId: string, toUserId: string, action: SwipeAction, message?: string) {
     if (toUserId === meId) throw new BadRequestException("O'zingizni svayp qila olmaysiz");
 
     // Paywall: obunasiz foydalanuvchilar uchun kunlik svayp va haftalik SuperLike limiti
     await this.enforceSwipeLimits(meId, action);
 
+    // "Xabar yuborib tanishish" — faqat Platinum (yoki bepul-premium ayollar)
+    const prematch = action !== SwipeAction.PASS && message?.trim() ? message.trim() : undefined;
+    if (prematch) {
+      const me = await this.prisma.user.findUnique({
+        where: { id: meId },
+        select: { subscriptionTier: true, subscriptionUntil: true, gender: true },
+      });
+      const canMessage = !!me && (me.gender === 'FEMALE' || hasTierAtLeast(me, 'PLATINUM'));
+      if (!canMessage) {
+        throw new ForbiddenException({
+          code: 'PREMATCH_MESSAGE_LOCKED',
+          message: 'Tanishishdan oldin xabar yuborish — Platinum imkoniyati.',
+        });
+      }
+    }
+
     await this.prisma.swipe.upsert({
       where: { fromUserId_toUserId: { fromUserId: meId, toUserId } },
-      create: { fromUserId: meId, toUserId, action },
-      update: { action },
+      create: { fromUserId: meId, toUserId, action, message: prematch },
+      update: { action, message: prematch },
     });
 
     if (action === SwipeAction.PASS) {
@@ -109,6 +135,17 @@ export class DiscoveryService {
         userB: { include: { photos: { orderBy: { order: 'asc' }, take: 1 } } },
       },
     });
+
+    // Pre-match xabarlar (Platinum) — yangi suhbat bo'sh bo'lsa chatga ko'chiramiz
+    const msgCount = await this.prisma.message.count({ where: { matchId: match.id } });
+    if (msgCount === 0) {
+      const seeds: { matchId: string; senderId: string; content: string }[] = [];
+      if (reciprocal?.message) seeds.push({ matchId: match.id, senderId: toUserId, content: reciprocal.message });
+      if (prematch) seeds.push({ matchId: match.id, senderId: meId, content: prematch });
+      if (seeds.length) {
+        await this.prisma.message.createMany({ data: seeds.map((s) => ({ ...s, type: 'TEXT' as const })) });
+      }
+    }
 
     const other = match.userAId === meId ? match.userB : match.userA;
     const me = match.userAId === meId ? match.userA : match.userB;
@@ -168,6 +205,7 @@ export class DiscoveryService {
       items: likes.map((l) => ({
         swipedAt: l.createdAt,
         superLike: l.action === SwipeAction.SUPERLIKE,
+        message: l.message ?? null, // Platinum pre-match xabar (bo'lsa)
         user: serializeUser(l.fromUser),
       })),
     };

@@ -88,7 +88,11 @@ model User {
   lastActiveAt   DateTime       @default(now())
 
   // Iqtisodiyot
-  coinBalance   Int @default(150) // "Yurak tangalari" (qaytarilmaydigan ichki kredit)
+  coinBalance   Int @default(150) // jami sarflanadigan tanga (bepul + sotib olingan)
+  // FIRIBGARLIKKA QARSHI: faqat SOTIB OLINGAN tanga sovg'ada oluvchining
+  // yechiladigan so'miga aylanadi. Bepul/promo tanga (default 150) sovg'a
+  // sifatida ko'rinadi, lekin real pul yaratmaydi (pul "bosish" teshigi yopiq).
+  paidCoinBalance Int @default(0) // coinBalance ichidagi sotib olingan ulush
   walletBalance Int @default(0) // sovg'alardan yig'ilgan so'm (V2 cash-out)
 
   // Obuna
@@ -165,6 +169,7 @@ model Swipe {
   toUserId   String
   toUser     User        @relation("SwipesReceived", fields: [toUserId], references: [id], onDelete: Cascade)
   action     SwipeAction
+  message    String? // Platinum "Xabar yuborib tanishish" — pre-match birinchi xabar
   createdAt  DateTime    @default(now())
 
   // Bir userga ikki marta svayp qilib bo'lmaydi
