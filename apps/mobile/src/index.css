@@ -2,8 +2,120 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Diydor mavzu o'zgaruvchilari (issiq editorial) — light + dark ──
+   Kanal triplet (R G B) -> tailwind rgb(var() / <alpha-value>). gen-theme.cjs. */
 :root {
   color-scheme: light;
+  --c-background: 251 246 240;
+  --c-surface: 251 246 240;
+  --c-surface-warm: 255 255 255;
+  --c-surface-bright: 255 255 255;
+  --c-surface-subtle: 241 233 223;
+  --c-surface-dim: 237 227 215;
+  --c-surface-variant: 231 220 206;
+  --c-surface-tint: 190 74 46;
+  --c-surface-container-lowest: 255 255 255;
+  --c-surface-container-low: 248 241 233;
+  --c-surface-container: 243 235 224;
+  --c-surface-container-high: 237 228 216;
+  --c-surface-container-highest: 231 220 206;
+  --c-on-surface: 43 36 33;
+  --c-on-background: 43 36 33;
+  --c-on-surface-variant: 120 106 96;
+  --c-outline: 164 148 138;
+  --c-outline-variant: 224 211 197;
+  --c-inverse-surface: 57 48 41;
+  --c-inverse-on-surface: 246 237 227;
+  --c-inverse-primary: 242 180 155;
+  --c-primary: 190 74 46;
+  --c-on-primary: 255 255 255;
+  --c-primary-container: 247 218 201;
+  --c-on-primary-container: 90 26 11;
+  --c-primary-fixed: 251 228 215;
+  --c-primary-fixed-dim: 242 180 155;
+  --c-on-primary-fixed: 61 14 3;
+  --c-on-primary-fixed-variant: 140 46 24;
+  --c-coral-deep: 214 96 74;
+  --c-secondary: 111 96 86;
+  --c-on-secondary: 255 255 255;
+  --c-secondary-container: 238 225 213;
+  --c-on-secondary-container: 86 74 65;
+  --c-secondary-fixed: 236 224 212;
+  --c-secondary-fixed-dim: 207 192 178;
+  --c-on-secondary-fixed: 39 28 20;
+  --c-on-secondary-fixed-variant: 78 66 57;
+  --c-tertiary: 176 122 43;
+  --c-on-tertiary: 255 255 255;
+  --c-tertiary-container: 245 226 190;
+  --c-on-tertiary-container: 58 38 0;
+  --c-tertiary-fixed: 245 226 190;
+  --c-tertiary-fixed-dim: 220 192 137;
+  --c-on-tertiary-fixed: 38 24 0;
+  --c-on-tertiary-fixed-variant: 107 83 24;
+  --c-success: 76 154 106;
+  --c-success-container: 224 240 227;
+  --c-error: 186 26 26;
+  --c-on-error: 255 255 255;
+  --c-error-container: 247 217 212;
+  --c-on-error-container: 65 0 2;
+  --c-platinum-dark: 18 18 18;
+}
+
+.dark {
+  color-scheme: dark;
+  --c-background: 26 22 19;
+  --c-surface: 26 22 19;
+  --c-surface-warm: 34 28 24;
+  --c-surface-bright: 42 35 30;
+  --c-surface-subtle: 34 28 24;
+  --c-surface-dim: 20 17 16;
+  --c-surface-variant: 60 52 45;
+  --c-surface-tint: 224 121 95;
+  --c-surface-container-lowest: 19 16 16;
+  --c-surface-container-low: 30 25 22;
+  --c-surface-container: 35 29 25;
+  --c-surface-container-high: 45 38 32;
+  --c-surface-container-highest: 56 48 42;
+  --c-on-surface: 241 231 222;
+  --c-on-background: 241 231 222;
+  --c-on-surface-variant: 203 186 173;
+  --c-outline: 156 138 126;
+  --c-outline-variant: 76 65 57;
+  --c-inverse-surface: 241 231 222;
+  --c-inverse-on-surface: 43 36 33;
+  --c-inverse-primary: 190 74 46;
+  --c-primary: 203 87 64;
+  --c-on-primary: 255 255 255;
+  --c-primary-container: 90 36 23;
+  --c-on-primary-container: 255 217 201;
+  --c-primary-fixed: 107 46 30;
+  --c-primary-fixed-dim: 166 67 43;
+  --c-on-primary-fixed: 255 217 201;
+  --c-on-primary-fixed-variant: 255 181 155;
+  --c-coral-deep: 224 121 95;
+  --c-secondary: 182 164 150;
+  --c-on-secondary: 42 30 21;
+  --c-secondary-container: 58 50 44;
+  --c-on-secondary-container: 221 203 189;
+  --c-secondary-fixed: 58 50 44;
+  --c-secondary-fixed-dim: 84 73 63;
+  --c-on-secondary-fixed: 241 231 222;
+  --c-on-secondary-fixed-variant: 210 192 178;
+  --c-tertiary: 224 190 110;
+  --c-on-tertiary: 58 38 0;
+  --c-tertiary-container: 90 67 32;
+  --c-on-tertiary-container: 245 226 190;
+  --c-tertiary-fixed: 90 67 32;
+  --c-tertiary-fixed-dim: 201 162 75;
+  --c-on-tertiary-fixed: 245 226 190;
+  --c-on-tertiary-fixed-variant: 220 192 137;
+  --c-success: 123 199 154;
+  --c-success-container: 30 61 42;
+  --c-error: 255 180 171;
+  --c-on-error: 105 0 5;
+  --c-error-container: 147 0 10;
+  --c-on-error-container: 255 218 214;
+  --c-platinum-dark: 18 18 18;
 }
 
 html,
@@ -14,8 +126,8 @@ body,
 
 body {
   margin: 0;
-  background-color: theme('colors.background');
-  color: theme('colors.on-surface');
+  background-color: rgb(var(--c-background));
+  color: rgb(var(--c-on-surface));
   font-family: theme('fontFamily.sans');
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
@@ -33,8 +145,8 @@ body {
 
 /* Issiq matn tanlash (brend rangi) */
 ::selection {
-  background-color: theme('colors.primary-fixed');
-  color: theme('colors.on-primary-fixed');
+  background-color: rgb(var(--c-primary-fixed));
+  color: rgb(var(--c-on-primary-fixed));
 }
 
 /* Material Symbols (Rounded — yumshoq, premium) */
@@ -151,9 +263,9 @@ body {
 .shimmer {
   background: linear-gradient(
     90deg,
-    theme('colors.surface-container') 25%,
-    theme('colors.surface-container-high') 50%,
-    theme('colors.surface-container') 75%
+    rgb(var(--c-surface-container)) 25%,
+    rgb(var(--c-surface-container-high)) 50%,
+    rgb(var(--c-surface-container)) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
@@ -210,6 +322,28 @@ body {
   box-shadow:
     inset 3px 3px 7px rgba(150, 90, 60, 0.2),
     inset -3px -3px 6px rgba(255, 255, 255, 0.85);
+}
+
+/* Dark mode — clay qorong'i yuzaga moslanadi (chuqur soya + nozik iliq highlight) */
+.dark .clay {
+  box-shadow:
+    5px 5px 12px rgba(0, 0, 0, 0.45),
+    -4px -4px 10px rgba(255, 240, 230, 0.04);
+}
+.dark .clay-sm {
+  box-shadow:
+    3px 3px 8px rgba(0, 0, 0, 0.4),
+    -3px -3px 7px rgba(255, 240, 230, 0.035);
+}
+.dark .clay-primary {
+  box-shadow:
+    5px 6px 14px rgba(0, 0, 0, 0.5),
+    -3px -4px 9px rgba(255, 170, 140, 0.12);
+}
+.dark .clay-press:active {
+  box-shadow:
+    inset 3px 3px 7px rgba(0, 0, 0, 0.5),
+    inset -3px -3px 6px rgba(255, 240, 230, 0.05);
 }
 
 /* Reduced motion — animatsiyalarni o'chiramiz (foydalanuvchi sozlamasi) */

@@ -1,10 +1,11 @@
 /**
- * Diydor dizayn tizimi — "Issiq editorial" (Hinge uslubi).
- * Yagona manba: dizayn <-> kod birligi.
+ * Diydor dizayn tizimi — "Issiq editorial" (Hinge uslubi) + soft clay.
+ * Ranglar CSS o'zgaruvchilariga (src/index.css :root / .dark) bog'langan —
+ * shu sabab DARK MODE barcha 21 ekranda avtomatik ishlaydi, va alpha
+ * utility'lar (bg-primary/20) saqlanadi: rgb(var(--c-x) / <alpha-value>).
  *
  * Falsafa: issiq krem yuzalar, boyitilgan terracotta, serif sarlavhalar
  * (Fraunces) + toza sans (Manrope). Tinch, ishonchli, premium his.
- * Token NOMLARI saqlangan (M3) — faqat qiymatlar issiq palitraga ko'chdi.
  */
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -13,66 +14,59 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ── Yuzalar (issiq krem qog'oz) ──
-        background: '#FBF6F0',
-        surface: '#FBF6F0',
-        'surface-warm': '#FFFFFF',
-        'surface-bright': '#FFFFFF',
-        'surface-subtle': '#F1E9DF',
-        'surface-dim': '#EDE3D7',
-        'surface-variant': '#E7DCCE',
-        'surface-tint': '#BE4A2E',
-        'surface-container-lowest': '#FFFFFF',
-        'surface-container-low': '#F8F1E9',
-        'surface-container': '#F3EBE0',
-        'surface-container-high': '#EDE4D8',
-        'surface-container-highest': '#E7DCCE',
-        // ── Matn / kontur ──
-        'on-surface': '#2B2421',
-        'on-background': '#2B2421',
-        'on-surface-variant': '#786A60',
-        outline: '#A4948A',
-        'outline-variant': '#E0D3C5',
-        'inverse-surface': '#393029',
-        'inverse-on-surface': '#F6EDE3',
-        'inverse-primary': '#F2B49B',
-        // ── Primary (terracotta) ──
-        primary: '#BE4A2E',
-        'on-primary': '#FFFFFF',
-        'primary-container': '#F7DAC9',
-        'on-primary-container': '#5A1A0B',
-        'primary-fixed': '#FBE4D7',
-        'primary-fixed-dim': '#F2B49B',
-        'on-primary-fixed': '#3D0E03',
-        'on-primary-fixed-variant': '#8C2E18',
-        'coral-deep': '#D6604A',
-        // ── Secondary (issiq taupe) ──
-        secondary: '#6F6056',
-        'on-secondary': '#FFFFFF',
-        'secondary-container': '#EEE1D5',
-        'on-secondary-container': '#564A41',
-        'secondary-fixed': '#ECE0D4',
-        'secondary-fixed-dim': '#CFC0B2',
-        'on-secondary-fixed': '#271C14',
-        'on-secondary-fixed-variant': '#4E4239',
-        // ── Tertiary (asal-oltin: super like / tasdiq) ──
-        tertiary: '#B07A2B',
-        'on-tertiary': '#FFFFFF',
-        'tertiary-container': '#F5E2BE',
-        'on-tertiary-container': '#3A2600',
-        'tertiary-fixed': '#F5E2BE',
-        'tertiary-fixed-dim': '#DCC089',
-        'on-tertiary-fixed': '#261800',
-        'on-tertiary-fixed-variant': '#6B5318',
-        // ── Holat (status) ──
-        success: '#4C9A6A',
-        'success-container': '#E0F0E3',
-        error: '#BA1A1A',
-        'on-error': '#FFFFFF',
-        'error-container': '#F7D9D4',
-        'on-error-container': '#410002',
-        // ── Maxsus ──
-        'platinum-dark': '#121212',
+        'background': 'rgb(var(--c-background) / <alpha-value>)',
+        'surface': 'rgb(var(--c-surface) / <alpha-value>)',
+        'surface-warm': 'rgb(var(--c-surface-warm) / <alpha-value>)',
+        'surface-bright': 'rgb(var(--c-surface-bright) / <alpha-value>)',
+        'surface-subtle': 'rgb(var(--c-surface-subtle) / <alpha-value>)',
+        'surface-dim': 'rgb(var(--c-surface-dim) / <alpha-value>)',
+        'surface-variant': 'rgb(var(--c-surface-variant) / <alpha-value>)',
+        'surface-tint': 'rgb(var(--c-surface-tint) / <alpha-value>)',
+        'surface-container-lowest': 'rgb(var(--c-surface-container-lowest) / <alpha-value>)',
+        'surface-container-low': 'rgb(var(--c-surface-container-low) / <alpha-value>)',
+        'surface-container': 'rgb(var(--c-surface-container) / <alpha-value>)',
+        'surface-container-high': 'rgb(var(--c-surface-container-high) / <alpha-value>)',
+        'surface-container-highest': 'rgb(var(--c-surface-container-highest) / <alpha-value>)',
+        'on-surface': 'rgb(var(--c-on-surface) / <alpha-value>)',
+        'on-background': 'rgb(var(--c-on-background) / <alpha-value>)',
+        'on-surface-variant': 'rgb(var(--c-on-surface-variant) / <alpha-value>)',
+        'outline': 'rgb(var(--c-outline) / <alpha-value>)',
+        'outline-variant': 'rgb(var(--c-outline-variant) / <alpha-value>)',
+        'inverse-surface': 'rgb(var(--c-inverse-surface) / <alpha-value>)',
+        'inverse-on-surface': 'rgb(var(--c-inverse-on-surface) / <alpha-value>)',
+        'inverse-primary': 'rgb(var(--c-inverse-primary) / <alpha-value>)',
+        'primary': 'rgb(var(--c-primary) / <alpha-value>)',
+        'on-primary': 'rgb(var(--c-on-primary) / <alpha-value>)',
+        'primary-container': 'rgb(var(--c-primary-container) / <alpha-value>)',
+        'on-primary-container': 'rgb(var(--c-on-primary-container) / <alpha-value>)',
+        'primary-fixed': 'rgb(var(--c-primary-fixed) / <alpha-value>)',
+        'primary-fixed-dim': 'rgb(var(--c-primary-fixed-dim) / <alpha-value>)',
+        'on-primary-fixed': 'rgb(var(--c-on-primary-fixed) / <alpha-value>)',
+        'on-primary-fixed-variant': 'rgb(var(--c-on-primary-fixed-variant) / <alpha-value>)',
+        'coral-deep': 'rgb(var(--c-coral-deep) / <alpha-value>)',
+        'secondary': 'rgb(var(--c-secondary) / <alpha-value>)',
+        'on-secondary': 'rgb(var(--c-on-secondary) / <alpha-value>)',
+        'secondary-container': 'rgb(var(--c-secondary-container) / <alpha-value>)',
+        'on-secondary-container': 'rgb(var(--c-on-secondary-container) / <alpha-value>)',
+        'secondary-fixed': 'rgb(var(--c-secondary-fixed) / <alpha-value>)',
+        'secondary-fixed-dim': 'rgb(var(--c-secondary-fixed-dim) / <alpha-value>)',
+        'on-secondary-fixed': 'rgb(var(--c-on-secondary-fixed) / <alpha-value>)',
+        'on-secondary-fixed-variant': 'rgb(var(--c-on-secondary-fixed-variant) / <alpha-value>)',
+        'tertiary': 'rgb(var(--c-tertiary) / <alpha-value>)',
+        'on-tertiary': 'rgb(var(--c-on-tertiary) / <alpha-value>)',
+        'tertiary-container': 'rgb(var(--c-tertiary-container) / <alpha-value>)',
+        'on-tertiary-container': 'rgb(var(--c-on-tertiary-container) / <alpha-value>)',
+        'tertiary-fixed': 'rgb(var(--c-tertiary-fixed) / <alpha-value>)',
+        'tertiary-fixed-dim': 'rgb(var(--c-tertiary-fixed-dim) / <alpha-value>)',
+        'on-tertiary-fixed': 'rgb(var(--c-on-tertiary-fixed) / <alpha-value>)',
+        'on-tertiary-fixed-variant': 'rgb(var(--c-on-tertiary-fixed-variant) / <alpha-value>)',
+        'success': 'rgb(var(--c-success) / <alpha-value>)',
+        'success-container': 'rgb(var(--c-success-container) / <alpha-value>)',
+        'error': 'rgb(var(--c-error) / <alpha-value>)',
+        'on-error': 'rgb(var(--c-on-error) / <alpha-value>)',
+        'error-container': 'rgb(var(--c-error-container) / <alpha-value>)',
+        'on-error-container': 'rgb(var(--c-on-error-container) / <alpha-value>)',
+        'platinum-dark': 'rgb(var(--c-platinum-dark) / <alpha-value>)',
       },
       borderRadius: {
         DEFAULT: '0.25rem',
@@ -92,16 +86,13 @@ export default {
         'margin-main': '16px',
       },
       fontFamily: {
-        // Serif sarlavhalar (his) vs toza sans (UI) — editorial ierarxiya
         sans: ['Manrope', 'system-ui', 'sans-serif'],
         display: ['Fraunces', 'Georgia', 'serif'],
         serif: ['Fraunces', 'Georgia', 'serif'],
-        // Sarlavhalar -> serif
         'display-lg': ['Fraunces', 'Georgia', 'serif'],
         'headline-lg': ['Fraunces', 'Georgia', 'serif'],
         'headline-lg-mobile': ['Fraunces', 'Georgia', 'serif'],
         'headline-md': ['Fraunces', 'Georgia', 'serif'],
-        // UI matni -> sans
         'title-md': ['Manrope'],
         'title-lg': ['Manrope'],
         'label-sm': ['Manrope'],
@@ -118,7 +109,6 @@ export default {
         'label-caps': ['12px', { lineHeight: '16px', letterSpacing: '0.05em', fontWeight: '600' }],
         'title-md': ['16px', { lineHeight: '22px', fontWeight: '600' }],
         'title-lg': ['20px', { lineHeight: '26px', fontWeight: '600' }],
-        // Serif sarlavhalar — yumshoqroq tracking, 600 vazn (Fraunces eng chiroyli)
         'display-lg': ['42px', { lineHeight: '46px', letterSpacing: '-0.015em', fontWeight: '600' }],
         'headline-lg': ['34px', { lineHeight: '40px', letterSpacing: '-0.01em', fontWeight: '600' }],
         'headline-lg-mobile': ['28px', { lineHeight: '34px', letterSpacing: '-0.005em', fontWeight: '600' }],

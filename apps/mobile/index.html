@@ -1,11 +1,28 @@
 <!DOCTYPE html>
-<html lang="uz" class="light">
+<html lang="uz">
   <head>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
+
+    <!-- Dark mode init (flash'siz): saqlangan tanlov yoki tizim sozlamasi -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('diydor_theme');
+          var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.classList.add('dark');
+          var mq = matchMedia('(prefers-color-scheme: dark)');
+          mq.addEventListener &&
+            mq.addEventListener('change', function (e) {
+              if (!localStorage.getItem('diydor_theme'))
+                document.documentElement.classList.toggle('dark', e.matches);
+            });
+        } catch (e) {}
+      })();
+    </script>
     <title>Diydor — Qalblar uchrashadigan joy</title>
 
     <!-- PWA: manifest, ikonka, brend rangi -->
