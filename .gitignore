@@ -1,0 +1,43 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build
+dist/
+build/
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+*.env
+!.env.example
+
+# prisma
+apps/api/prisma/*.db
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# docker volumes (local data)
+.docker-data/
+
+# user uploads (api)
+apps/api/uploads/
+
+# python / ML (verify service)
+services/**/venv/
+services/**/__pycache__/
+*.pyc
+*.onnx
+
+# local agent/editor config
+.claude/

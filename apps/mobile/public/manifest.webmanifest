@@ -1,0 +1,15 @@
+{
+  "name": "Diydor — Tanishuv ilovasi",
+  "short_name": "Diydor",
+  "description": "Qalblar uchrashadigan joy",
+  "lang": "uz",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#A73833",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

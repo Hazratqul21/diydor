@@ -1,0 +1,429 @@
+// Diydor ma'lumotlar bazasi sxemasi — MVP "core loop"
+// auth -> profil -> onboarding -> svayp -> match -> chat
+// Pul / sovg'a / verifikatsiya modullari keyingi bosqichda qo'shiladi.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────── Enumlar ───────────────────────────
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum SeekingGender {
+  MALE
+  FEMALE
+  EVERYONE
+}
+
+enum Intent {
+  SERIOUS // Jiddiy munosabat
+  FRIENDSHIP // Do'stlashish
+  UNSURE // Hali bilmayman
+}
+
+enum OnboardingStep {
+  GENDER_AGE // 1: jins va yosh
+  INTENT // 2: niyat
+  PHOTOS // 3: rasm yuklash
+  VERIFY // 4: selfie verifikatsiya (MVP'da hozircha skip qilinishi mumkin)
+  PROMPTS // 5: bio / savol-javob
+  PERMISSIONS // 6: ruxsatlar
+  DONE
+}
+
+enum SwipeAction {
+  LIKE
+  PASS
+  SUPERLIKE
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum MessageType {
+  TEXT
+  IMAGE // chatda rasm yuborilganda (content = /uploads/... URL)
+  VOICE
+  GIFT // chatda sovg'a yuborilganda
+  SYSTEM // match ochilganda tizim xabari va h.k.
+}
+
+// ─────────────────────────── User ──────────────────────────────
+
+model User {
+  id           String    @id @default(cuid())
+  telegramId   BigInt?   @unique // Telegram user_id (TMA orqali kirsa). Mustaqil ilovada null.
+  phone        String?   @unique // telefon OTP auth (keyingi bosqich)
+  username     String? // Telegram @username
+  firstName    String
+  lastName     String?
+  languageCode String?   @default("uz")
+  photoUrl     String? // boshlang'ich avatar (verifikatsiya emas)
+
+  // Profil (onboarding davomida to'ldiriladi)
+  gender        Gender?
+  seekingGender SeekingGender? @default(EVERYONE) // "Kimni qidiryapsiz?"
+  birthDate     DateTime?
+  intent        Intent?        @default(UNSURE)
+  bio           String? // "O'zim haqimda"
+  interests     String[]       @default([]) // qiziqishlar teglari
+
+  // Holat
+  onboardingStep OnboardingStep @default(GENDER_AGE)
+  isVerified     Boolean        @default(false) // selfie verifikatsiyadan o'tganmi
+  isBanned       Boolean        @default(false)
+  trustScore     Int            @default(0) // 0-100, fon tizimi hisoblaydi
+  lastActiveAt   DateTime       @default(now())
+
+  // Iqtisodiyot
+  coinBalance   Int @default(150) // "Yurak tangalari" (qaytarilmaydigan ichki kredit)
+  walletBalance Int @default(0) // sovg'alardan yig'ilgan so'm (V2 cash-out)
+
+  // Obuna
+  subscriptionTier  SubTier   @default(FREE)
+  subscriptionUntil DateTime? // obuna tugash sanasi (null = obunasiz)
+  trialEndsAt       DateTime? // bepul sinov tugash sanasi (bir marta)
+
+  // Joylashuv (ixtiyoriy)
+  latitude  Float?
+  longitude Float?
+  city      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Aloqalar
+  photos          Photo[]
+  prompts         Prompt[]
+  swipesSent      Swipe[]   @relation("SwipesSent")
+  swipesReceived  Swipe[]   @relation("SwipesReceived")
+  matchesAsUserA  Match[]   @relation("MatchUserA")
+  matchesAsUserB  Match[]   @relation("MatchUserB")
+  messagesSent    Message[] @relation("MessagesSent")
+  blocksMade      Block[]   @relation("BlockBlocker")
+  blocksReceived  Block[]   @relation("BlockBlocked")
+  reportsMade     Report[]  @relation("ReportReporter")
+  reportsReceived Report[]  @relation("ReportReported")
+  giftsSent       GiftTransaction[] @relation("GiftsSent")
+  giftsReceived   GiftTransaction[] @relation("GiftsReceived")
+  orders          Order[]
+  withdrawals     WithdrawalRequest[]
+
+  @@index([lastActiveAt])
+  @@map("users")
+}
+
+// ─────────────────────────── Photo ─────────────────────────────
+
+model Photo {
+  id               String           @id @default(cuid())
+  userId           String
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url              String
+  order            Int              @default(0) // grid tartibi, 0 = asosiy
+  moderationStatus ModerationStatus @default(PENDING)
+  createdAt        DateTime         @default(now())
+
+  @@index([userId])
+  @@map("photos")
+}
+
+// ─────────────────────────── Prompt ────────────────────────────
+// Hinge uslubidagi savol-javob ("Mening orzuyim...", ...)
+
+model Prompt {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question  String
+  answer    String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("prompts")
+}
+
+// ─────────────────────────── Swipe ─────────────────────────────
+
+model Swipe {
+  id         String      @id @default(cuid())
+  fromUserId String
+  fromUser   User        @relation("SwipesSent", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId   String
+  toUser     User        @relation("SwipesReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+  action     SwipeAction
+  createdAt  DateTime    @default(now())
+
+  // Bir userga ikki marta svayp qilib bo'lmaydi
+  @@unique([fromUserId, toUserId])
+  @@index([toUserId, action]) // "Sizni kim yoqtirdi" ro'yxati uchun
+  @@map("swipes")
+}
+
+// ─────────────────────────── Match ─────────────────────────────
+// Tartibni barqaror saqlash uchun konvensiya: userAId < userBId (string solishtiruv)
+
+model Match {
+  id        String    @id @default(cuid())
+  userAId   String
+  userA     User      @relation("MatchUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userBId   String
+  userB     User      @relation("MatchUserB", fields: [userBId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  closedAt  DateTime? // bloklash / unmatch bo'lganda
+
+  messages Message[]
+
+  @@unique([userAId, userBId])
+  @@index([userAId])
+  @@index([userBId])
+  @@map("matches")
+}
+
+// ─────────────────────────── Message ───────────────────────────
+
+model Message {
+  id        String      @id @default(cuid())
+  matchId   String
+  match     Match       @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User        @relation("MessagesSent", fields: [senderId], references: [id], onDelete: Cascade)
+  type      MessageType @default(TEXT)
+  content   String // matn yoki ovoz fayl URL'i
+  readAt    DateTime?
+  createdAt DateTime    @default(now())
+
+  @@index([matchId, createdAt])
+  @@map("messages")
+}
+
+// ─────────────────────────── Block ─────────────────────────────
+
+model Block {
+  id            String   @id @default(cuid())
+  blockerId     String
+  blocker       User     @relation("BlockBlocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId     String
+  blocked       User     @relation("BlockBlocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+  @@map("blocks")
+}
+
+// ─────────────────────────── Report ────────────────────────────
+
+model Report {
+  id         String   @id @default(cuid())
+  reporterId String
+  reporter   User     @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedId String
+  reported   User     @relation("ReportReported", fields: [reportedId], references: [id], onDelete: Cascade)
+  reason     String
+  details    String?
+  createdAt  DateTime @default(now())
+
+  @@index([reportedId])
+  @@map("reports")
+}
+
+// ─────────────────────── GiftTransaction ───────────────────────
+// Chatda yuborilgan virtual sovg'a yozuvi (sovg'a iqtisodiyoti yadrosi)
+
+model GiftTransaction {
+  id         String   @id @default(cuid())
+  fromUserId String
+  fromUser   User     @relation("GiftsSent", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId   String
+  toUser     User     @relation("GiftsReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+  matchId    String?
+  giftKey    String // katalog kaliti (rose, tulip, ...)
+  coinAmount Int // jo'natuvchidan yechilgan tanga
+  earnedSom  Int      @default(0) // oluvchi hamyoniga kreditlangan so'm
+  createdAt  DateTime @default(now())
+
+  @@index([toUserId])
+  @@index([fromUserId])
+  @@map("gift_transactions")
+}
+
+// ─────────────────────────── Order / Payme ─────────────────────
+// Order = ichki buyurtma (Payme to'lov qiladi). Payme checkout'ga
+// account.order_id sifatida Order.id beriladi.
+
+enum OrderType {
+  COIN_PURCHASE // tanga sotib olish
+  SUBSCRIPTION // obuna (Plus/Gold/Platinum)
+}
+
+enum SubTier {
+  FREE
+  PLUS
+  GOLD
+  PLATINUM
+}
+
+enum SubPeriod {
+  WEEK
+  MONTH
+  YEAR
+}
+
+enum AdminRole {
+  SUPERADMIN
+  ADMIN
+  MODERATOR
+}
+
+enum OrderState {
+  PENDING // to'lov kutilmoqda
+  PAID // to'langan, tovar yetkazildi (tanga qo'shildi)
+  CANCELLED // bekor qilingan
+}
+
+model Order {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      OrderType  @default(COIN_PURCHASE)
+  packageId String? // coin paket id (p100/p500/p1000)
+  planId    String? // obuna rejasi id (SUBSCRIPTION orderlar uchun)
+  subTier   SubTier? // SUBSCRIPTION: snapshot — reja o'chsa ham to'lov ishlashi uchun
+  subPeriod SubPeriod? // SUBSCRIPTION: snapshot (WEEK/MONTH/YEAR)
+  coins     Int        @default(0) // muvaffaqiyatda qo'shiladigan tanga
+  amount    Int // TIYIN da (priceSom * 100) — Payme amount bilan solishtiriladi
+  state     OrderState @default(PENDING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  transactions PaymeTransaction[]
+
+  @@index([userId])
+  @@map("orders")
+}
+
+// PaymeTransaction = Payme tomonidagi tranzaksiya (params.id = Payme ID)
+model PaymeTransaction {
+  id          String   @id // Payme tranzaksiya id (params.id)
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount      Int // tiyin
+  state       Int      @default(1) // 1 yaratilgan, 2 to'langan, -1/-2 bekor
+  paycomTime  BigInt // params.time (Payme yaratgan vaqt, ms)
+  createTime  BigInt   @default(0) // bizning create_time (ms)
+  performTime BigInt   @default(0)
+  cancelTime  BigInt   @default(0)
+  reason      Int? // bekor sababi kodi
+  createdAt   DateTime @default(now())
+
+  @@index([orderId])
+  @@map("payme_transactions")
+}
+
+// ─────────────────────────── Admin ─────────────────────────────
+
+model Admin {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String // scrypt: salt:hash
+  name         String
+  role         AdminRole @default(ADMIN)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@map("admins")
+}
+
+// ─────────────────────── AppConfig (singleton) ─────────────────
+// Admin paneldan boshqariladigan global sozlamalar
+
+model AppConfig {
+  id                    String   @id @default("singleton")
+  trialDays             Int      @default(3) // bepul sinov muddati
+  freeSwipesPerDay      Int      @default(20) // bepul kunlik svayp limiti
+  freeSuperLikesPerWeek Int      @default(1)
+  coinToSom             Int      @default(100) // 1 tanga qiymati (so'm)
+  receiverSharePercent  Int      @default(50) // sovg'adan oluvchi ulushi
+  minWithdrawSom        Int      @default(50000)
+  // ── Branding (Welcome ekrani — admin paneldan boshqariladi) ──
+  welcomeImageUrl       String? // hero rasm (null -> ilovadagi standart rasm)
+  welcomeTitle          String? // sarlavha (null -> "Diydor")
+  welcomeSubtitle       String? // tagsarlavha (null -> "Qalblar uchrashadigan joy")
+  updatedAt             DateTime @updatedAt
+
+  @@map("app_config")
+}
+
+// ─────────────────────── WithdrawalRequest ─────────────────────
+// Pul yechish so'rovi — hozircha admin QO'LDA kartага o'tkazadi (PSP keyin).
+
+enum WithdrawalStatus {
+  PENDING // kutilmoqda (admin ko'rib chiqadi)
+  PAID // to'langan (admin qo'lda yubordi)
+  REJECTED // rad etildi (mablag' hamyonga qaytariladi)
+}
+
+model WithdrawalRequest {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amountSom   Int
+  cardNumber  String
+  status      WithdrawalStatus @default(PENDING)
+  note        String?
+  createdAt   DateTime         @default(now())
+  processedAt DateTime?
+
+  @@index([status])
+  @@index([userId])
+  @@map("withdrawal_requests")
+}
+
+// ─────────────────────── PaymentConfig (singleton) ─────────────
+// Payme rekvizitlari — admin paneldan boshqariladi. Kalitlar AES-256-GCM
+// bilan SHIFRLANGAN saqlanadi (common/crypto.ts). Bo'sh bo'lsa .env'ga fallback.
+
+model PaymentConfig {
+  id              String   @id @default("singleton")
+  paymeMerchantId String   @default("")
+  paymeEnv        String   @default("test") // 'test' | 'prod'
+  paymeCheckoutUrl String  @default("https://checkout.paycom.uz")
+  paymeKeyTestEnc String?  // shifrlangan test kaliti
+  paymeKeyProdEnc String?  // shifrlangan prod kaliti
+  updatedAt       DateTime @updatedAt
+
+  @@map("payment_config")
+}
+
+// ─────────────────────── SubscriptionPlan ──────────────────────
+// Admin paneldan narx/chegirma boshqariladi
+
+model SubscriptionPlan {
+  id              String    @id @default(cuid())
+  tier            SubTier // PLUS / GOLD / PLATINUM
+  period          SubPeriod // WEEK / MONTH / YEAR
+  priceSom        Int
+  discountPercent Int       @default(0)
+  active          Boolean   @default(true)
+  sortOrder       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([tier, period])
+  @@map("subscription_plans")
+}

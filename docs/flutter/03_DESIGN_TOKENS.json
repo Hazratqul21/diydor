@@ -1,0 +1,99 @@
+{
+  "$description": "Diydor design tokens — Tokens Studio (Figma) va Flutter theme uchun yagona manba. Manba: apps/mobile/tailwind.config.js (Material 3).",
+  "global": {
+    "color": {
+      "primary": { "value": "#A73833", "type": "color" },
+      "coral-deep": { "value": "#E86358", "type": "color" },
+      "primary-container": { "value": "#FF7A70", "type": "color" },
+      "primary-fixed": { "value": "#FFDAD6", "type": "color" },
+      "primary-fixed-dim": { "value": "#FFB3AC", "type": "color" },
+      "on-primary": { "value": "#FFFFFF", "type": "color" },
+      "on-primary-container": { "value": "#721112", "type": "color" },
+      "on-primary-fixed": { "value": "#410003", "type": "color" },
+      "secondary": { "value": "#625D5D", "type": "color" },
+      "secondary-container": { "value": "#E6DEDD", "type": "color" },
+      "on-secondary": { "value": "#FFFFFF", "type": "color" },
+      "on-secondary-container": { "value": "#666161", "type": "color" },
+      "tertiary": { "value": "#005BC1", "type": "color" },
+      "tertiary-container": { "value": "#71A2FF", "type": "color" },
+      "on-tertiary": { "value": "#FFFFFF", "type": "color" },
+      "background": { "value": "#FCF8FB", "type": "color" },
+      "surface": { "value": "#FCF8FB", "type": "color" },
+      "surface-warm": { "value": "#FFFFFF", "type": "color" },
+      "surface-bright": { "value": "#FCF8FB", "type": "color" },
+      "surface-subtle": { "value": "#F2F2F7", "type": "color" },
+      "surface-dim": { "value": "#DCD9DC", "type": "color" },
+      "surface-container-lowest": { "value": "#FFFFFF", "type": "color" },
+      "surface-container-low": { "value": "#F6F3F5", "type": "color" },
+      "surface-container": { "value": "#F0EDEF", "type": "color" },
+      "surface-container-high": { "value": "#EAE7EA", "type": "color" },
+      "surface-container-highest": { "value": "#E4E2E4", "type": "color" },
+      "surface-variant": { "value": "#E4E2E4", "type": "color" },
+      "on-surface": { "value": "#1B1B1D", "type": "color" },
+      "on-surface-variant": { "value": "#57423F", "type": "color" },
+      "outline": { "value": "#8B716E", "type": "color" },
+      "outline-variant": { "value": "#DEC0BC", "type": "color" },
+      "inverse-surface": { "value": "#303032", "type": "color" },
+      "inverse-on-surface": { "value": "#F3F0F2", "type": "color" },
+      "inverse-primary": { "value": "#FFB3AC", "type": "color" },
+      "error": { "value": "#BA1A1A", "type": "color" },
+      "error-container": { "value": "#FFDAD6", "type": "color" },
+      "on-error": { "value": "#FFFFFF", "type": "color" },
+      "on-error-container": { "value": "#93000A", "type": "color" },
+      "success": { "value": "#34C759", "type": "color" },
+      "success-container": { "value": "#E5F9E9", "type": "color" },
+      "platinum-dark": { "value": "#121212", "type": "color" }
+    },
+    "fontFamily": {
+      "sans": { "value": "Manrope", "type": "fontFamilies" }
+    },
+    "fontWeight": {
+      "regular": { "value": "400", "type": "fontWeights" },
+      "medium": { "value": "500", "type": "fontWeights" },
+      "semibold": { "value": "600", "type": "fontWeights" },
+      "bold": { "value": "700", "type": "fontWeights" }
+    },
+    "typography": {
+      "headline-lg": { "value": { "fontFamily": "Manrope", "fontWeight": "700", "fontSize": "34", "lineHeight": "41", "letterSpacing": "-2%" }, "type": "typography" },
+      "headline-lg-mobile": { "value": { "fontFamily": "Manrope", "fontWeight": "700", "fontSize": "28", "lineHeight": "34", "letterSpacing": "-1%" }, "type": "typography" },
+      "headline-md": { "value": { "fontFamily": "Manrope", "fontWeight": "600", "fontSize": "22", "lineHeight": "28", "letterSpacing": "0" }, "type": "typography" },
+      "body-lg": { "value": { "fontFamily": "Manrope", "fontWeight": "400", "fontSize": "17", "lineHeight": "22", "letterSpacing": "0" }, "type": "typography" },
+      "body-md": { "value": { "fontFamily": "Manrope", "fontWeight": "400", "fontSize": "15", "lineHeight": "20", "letterSpacing": "0" }, "type": "typography" },
+      "label-sm": { "value": { "fontFamily": "Manrope", "fontWeight": "500", "fontSize": "13", "lineHeight": "18", "letterSpacing": "0" }, "type": "typography" },
+      "label-caps": { "value": { "fontFamily": "Manrope", "fontWeight": "600", "fontSize": "12", "lineHeight": "16", "letterSpacing": "5%", "textCase": "uppercase" }, "type": "typography" }
+    },
+    "spacing": {
+      "stack-sm": { "value": "8", "type": "spacing" },
+      "gutter": { "value": "12", "type": "spacing" },
+      "stack-md": { "value": "16", "type": "spacing" },
+      "margin-main": { "value": "16", "type": "spacing" },
+      "stack-lg": { "value": "24", "type": "spacing" },
+      "safe-bottom": { "value": "34", "type": "spacing" }
+    },
+    "borderRadius": {
+      "default": { "value": "4", "type": "borderRadius" },
+      "lg": { "value": "8", "type": "borderRadius" },
+      "xl": { "value": "12", "type": "borderRadius" },
+      "button": { "value": "16", "type": "borderRadius" },
+      "card": { "value": "24", "type": "borderRadius" },
+      "sheet": { "value": "28", "type": "borderRadius" },
+      "full": { "value": "9999", "type": "borderRadius" }
+    },
+    "boxShadow": {
+      "ambient": { "value": { "x": "0", "y": "10", "blur": "30", "spread": "0", "color": "rgba(0,0,0,0.08)" }, "type": "boxShadow" },
+      "lift": { "value": { "x": "0", "y": "15", "blur": "40", "spread": "0", "color": "rgba(0,0,0,0.12)" }, "type": "boxShadow" },
+      "card": { "value": { "x": "0", "y": "10", "blur": "30", "spread": "0", "color": "rgba(0,0,0,0.14)" }, "type": "boxShadow" },
+      "glow-success": { "value": { "x": "0", "y": "0", "blur": "40", "spread": "0", "color": "rgba(52,199,89,0.4)" }, "type": "boxShadow" },
+      "primary-cta": { "value": { "x": "0", "y": "10", "blur": "24", "spread": "0", "color": "rgba(167,56,51,0.3)" }, "type": "boxShadow" }
+    },
+    "motion": {
+      "easing-standard": { "value": "cubic-bezier(0.16, 1, 0.3, 1)", "type": "other" },
+      "easing-overshoot": { "value": "cubic-bezier(0.175, 0.885, 0.32, 1.275)", "type": "other" },
+      "duration-fast": { "value": "200", "type": "other" },
+      "duration-card-exit": { "value": "340", "type": "other" },
+      "duration-page": { "value": "300", "type": "other" },
+      "duration-fadeInUp": { "value": "800", "type": "other" }
+    }
+  },
+  "$themes-note": "Dark mode uchun yuqoridagi 'global' to'plamdan nusxa olib 'dark' to'plam yarating: surface/background -> #121212..#1B1B1D, on-surface -> #F3F0F2, surface-warm -> #1E1B1B, primary -> #FFB3AC (inverse-primary), surface-container* qoramtir darajalar. Flutter ColorScheme.dark ham shu qiymatlardan quriladi."
+}

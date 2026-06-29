@@ -1,0 +1,17 @@
+{
+  "name": "diydor",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Diydor — tanishuv va aloqa ilovasi (INNASOFT)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "api:dev": "pnpm --filter @diydor/api start:dev",
+    "api:build": "pnpm --filter @diydor/api build",
+    "db:up": "docker compose up -d postgres redis",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @diydor/api prisma migrate dev",
+    "db:studio": "pnpm --filter @diydor/api prisma studio"
+  }
+}

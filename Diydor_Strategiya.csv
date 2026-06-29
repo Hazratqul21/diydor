@@ -1,0 +1,293 @@
+Bo'lim,Kichik bo'lim,Mazmun
+Umumiy,Kirish,"DIYDOR
+Qalblar uchrashadigan joy
+TANISHUV VA ALOQA ILOVASI
+To'liq mahsulot, dizayn, monetizatsiya va biznes strategiyasi hujjati
+Tayyorlandi: INNASOFT MChJ uchun
+Buyurtmachi: Muzaffar, Asoschi / CEO
+Hujjat sanasi: 2026-yil iyun
+Mazmuni"
+0. Qisqacha xulosa,,"Diydor — bu O'zbekiston va MDH bozori uchun moslashtirilgan, yigit va qizlarning tanishuvi, do'stlashishi va o'z baxtini topishiga xizmat qiladigan mobil ilova. Mahsulotning markaziy g'oyasi ikkita ustunga tayanadi: birinchidan, Tinder, Bumble va Hinge kabi global liderlarning isbotlangan ishlash mexanizmlari (swipe, mos kelish, suhbat); ikkinchidan, ikki tomon roziligiga asoslangan, real pulga aylanuvchi sovg'a iqtisodiyoti (gifting economy), bu esa foydalanuvchilarni majburlashsiz, lekin tabiiy ravishda pul sarflashga undaydi.
+Daromad ikki asosiy manbadan keladi: oylik/haftalik obuna to'lovlari (Plus, Gold, Platinum darajalari) va ilova ichidagi tanga (coin) tizimi orqali xarid qilinadigan sovg'alar, bunda qizlar olgan sovg'aning bir qismini real pulga aylantirib, hamyoniga (Payme/Click) yechib olish imkoniga ega bo'ladi, qolgan ulush esa platformaga tushadi. Bu model TikTok, Instagram va Bigo Live kabi platformalardagi tasdiqlangan ""virtual sovg'a — raqamli valyuta — pul yechish"" mexanizmining tanishuv sohasiga moslashtirilgan ko'rinishidir.
+Hujjat quyidagi 14 bo'limdan iborat: bozor tahlili, g'oyaning realligi, auditoriya, mahsulot funksiyalari, monetizatsiya, xavfsizlik va rozilik tizimi, dizayn tizimi (Apple darajasidagi yumshoqlik va rang palitralari), texnik arxitektura, sotuv strategiyasi, moliyaviy model, xavflar, yo'l xaritasi va qo'shimcha takliflar."
+1. Bozor tahlili va raqobatchilar,,"Tanishuv ilovalari bozori dunyo bo'yicha yetilgan, lekin O'zbekiston va Markaziy Osiyo uchun hali to'liq mahalliylashtirilmagan segment hisoblanadi. Global o'yinchilarning ishlash mantiqini o'rganish Diydor uchun qaysi mexanizmlarni olish, qaysilarini mahalliy madaniyatga moslab o'zgartirish kerakligini ko'rsatadi."
+1. Bozor tahlili va raqobatchilar,1.1. Global liderlar,"Ilova
+Asosiy fokus
+Pul ishlash modeli
+Diydor uchun saboq
+Tinder
+Tezkor tanishish, katta hajm
+Bepul + Plus/Gold/Platinum obuna, Super Like, Boost
+Swipe mexanizmi sodda va tezkor bo'lishi kerak; pullik darajalar ko'rinishni oshiradi
+Bumble
+Ayollar birinchi qadam tashlaydi, xavfsizlik
+Boost va Premium obuna, ichki tanga (coins)
+Ayol foydalanuvchiga nazorat berish ishonchni oshiradi va to'lovga undaydi
+Hinge
+Jiddiy munosabat, chuqur profil
+Hinge+ va yuqori ""X"" darajasi obunasi
+Savol-javob (prompt) profillar sifatli suhbatni boshlaydi
+Badoo / Mamba
+MDH bozori, VIP maqom
+VIP obuna, tanga orqali xizmatlar, sovg'alar
+MDH foydalanuvchisi mikro-to'lovlarga (tanga, sovg'a) ko'nikkan
+Tahlilchilarning ma'lumotlariga ko'ra, obuna to'lovlari hamon dating-ilovalar daromadining yarmidan ko'pini tashkil etadi, biroq Boost, Super Like va virtual sovg'a kabi bir martalik xaridlar (consumables) tobora katta ulushni egallab bormoqda — chunki ular foydalanuvchidan katta majburiyat talab qilmaydi, lekin doimiy mikro-to'lovlarni yaratadi. Aynan shu ikkinchi yo'nalish — tanga va sovg'a iqtisodiyoti — Diydor uchun markaziy farqlovchi elementga aylanishi mumkin."
+1. Bozor tahlili va raqobatchilar,1.2. Mahalliy kontekst,"O'zbekiston bozorida 2021-yildan beri faoliyat yuritayotgan mahalliy tanishuv ilovasi mavjud (quyida 1.3-bandda batafsil ko'rib chiqiladi) — bu mahalliy bozorda raqamli tanishuvga jamiyat tomonidan talab va tayyorlik mavjudligini tasdiqlaydi. Shu bilan birga, mavjud o'yinchining zaif tomonlari (eskirgan monetizatsiya, past foydalanuvchi ishonchi, lokalizatsiya yetishmovchiligi) Diydor uchun aniq bo'sh joy va ustunlik imkoniyatini ko'rsatadi.
+Payme va Click kabi mahalliy to'lov tizimlarining keng tarqalganligi, shuningdek aholi orasida TikTok/Instagram orqali ""sovg'a yuborish"" madaniyatining shakllanib borayotgani — Diydor'ning tanga va sovg'a iqtisodiyotini joriy etishi uchun qulay zamin yaratadi. Foydalanuvchilar allaqachon raqamli sovg'a yuborish g'oyasiga boshqa platformalar orqali ko'nikib bormoqda."
+1. Bozor tahlili va raqobatchilar,1.3. Asosiy mahalliy raqobatchi: Olove,"Olove — O'zbekistonda 2021-yildan beri ishlayotgan, o'zini mamlakatdagi birinchi nikoh va tanishuv ilovasi sifatida tanitgan mahsulot. Kompaniya (Olove Ltd) rasman Buyuk Britaniyada ro'yxatdan o'tgan, lekin mahsulot to'liq O'zbekiston bozoriga qaratilgan va ingliz, rus, o'zbek tillarini qo'llab-quvvatlaydi. Monetizatsiyasi faqat klassik obuna darajalaridan iborat (dollarda narxlangan: Light, Premium va VIP darajalari, eng yuqorisi oyiga taxminan 85 dollar atrofida), hech qanday sovg'a yoki tanga iqtisodiyoti mavjud emas. Erkaklarga atigi 3 kunlik bepul sinov muddati beriladi, ayollar uchun esa shartlar boshqacha — ya'ni asosiy to'lov yuki erkaklar zimmasiga tushadi, lekin ayolga sovg'adan daromad olish imkoni yo'q. Ilova reytingi hozirda 2.7 (5 balldan), bu foydalanuvchi ishonchi va sifat borasida jiddiy muammolarni ko'rsatadi. So'nggi yangilanishlar asosan mayda xato tuzatishlari darajasida, yirik funksional innovatsiya kuzatilmaydi. Mustaqil bozor reytinglarida (Similarweb) O'zbekiston Google Play tanishuv toifasida TOP-3 LovePlanet, PURE va Tinder tomonidan band qilingan — Olove bu reytingda qatnashmaydi, demak ""birinchi bo'lish"" ustunligini saqlab qololmagan.
+Mezon
+Olove
+Diydor
+Pozitsiya
+Faqat nikoh/jiddiy munosabat
+Tanishish + do'stlik + jiddiy munosabat
+Daromad modeli
+Faqat obuna (dollarda)
+Obuna + sovg'a/tanga iqtisodiyoti (so'mda)
+Ayol uchun daromad
+Yo'q
+Bor — sovg'adan pul yechib olish imkoni
+To'lov tizimi
+Lokal integratsiya signali yo'q
+Payme / Click / Uzcard — to'liq mahalliy
+Foydalanuvchi reytingi
+2.7 / 5, shikoyatlar ko'p
+Boshidan moderatsiya va rozilik tizimi bilan rejalashtirilgan
+Dizayn / UX
+Eski, mayda tuzatishlar darajasida
+Apple darajasidagi zamonaviy, silliq tajriba
+Bozordagi o'rni
+TOP-3 reytingda yo'q
+Yangi, lekin bo'sh joyni egallash imkoni katta
+Xulosa: Olove zaif raqib hisoblanadi — birinchi bo'lish afzalligini saqlab qololmagan, monetizatsiyasi bir o'lchovli, foydalanuvchi ishonchi past. Diydor aynan shu bo'shliqlarni — sovg'a iqtisodiyoti, lokal to'lov, yuqori sifatli UX va kengroq pozitsiya orqali — to'ldirishga qaratilgan."
+2. G'oyaning realligi va bozor validatsiyasi,2.1. Nega aynan hozir?,"Smartfon va mobil internet qamrovi O'zbekistonda yuqori sur'atlar bilan o'sib bormoqda, yoshlar orasida ijtimoiy tarmoqlardan foydalanish odat tusiga kirgan.
+Mahalliy to'lov infratuzilmasi (Payme, Click, Uzcard, Humo) yetarlicha yetilgan — bu mikro-to'lovlar va pul yechib olish jarayonini texnik jihatdan oson amalga oshirish imkonini beradi.
+Raqamli sovg'a yuborish (TikTok, Instagram Gifts) madaniyati allaqachon shakllangan — foydalanuvchi ""virtual sovg'a uchun pul to'lash"" g'oyasiga begona emas.
+Yaqinda mahalliy tanishuv ilovasining paydo bo'lishi bozorning tayyor ekanini va talab mavjudligini ko'rsatadi, ammo bu o'yinchi faqat nikoh segmentiga qaratilgan — keng auditoriya va kuchli monetizatsiya bilan bo'sh joy mavjud."
+2. G'oyaning realligi va bozor validatsiyasi,2.2. Madaniy nozikliklar va ularni boshqarish,"O'zbekiston nisbatan konservativ ijtimoiy muhitga ega bo'lgani uchun, ilovani sof ""dating/hookup"" sifatida emas, balki ""tanishish, do'stlik va hurmatga asoslangan aloqa"" platformasi sifatida joylashtirish (positioning) muhim ahamiyatga ega. Marketing tilida ""hurmat"", ""rozilik"", ""xavfsizlik"" va ""jiddiy niyat"" kabi so'zlarga urg'u berish kerak. Buning uchun ilova ichida ""Faqat do'stlik"" va ""Munosabat qidiraman"" kabi rejimlarni ajratib ko'rsatish tavsiya etiladi — bu turli auditoriya guruhlarini bir xil platformada birlashtirib, ijtimoiy qabul qilinishini oshiradi."
+2. G'oyaning realligi va bozor validatsiyasi,2.3. SWOT — qisqacha,"Kuchli tomonlar
+Zaif tomonlar
+Ichki
+Mahalliy til/madaniyat, mahalliy to'lov integratsiyasi, gift-iqtisodiyot orqali yuqori ARPU imkoniyati
+Boshlang'ich foydalanuvchi bazasi yo'q, brend ishonchini qaytadan qurish kerak
+Imkoniyatlar
+Tahdidlar
+Tashqi
+Bozorda hali to'liq egallanmagan keng-auditoriya segmenti, davlat IT Park imtiyozlari, diaspora auditoriyasi
+Ijtimoiy-madaniy qarshilik, App Store/Play Store-ning pullik gift/cash-out siyosatlari, soxta profillar xavfi"
+3. Maqsadli auditoriya va foydalanuvchi personalari,3.1. Asosiy personalar,"Persona 1 — ""Faol Yigit"" (22–32 yosh)
+Shahar muhitida yashaydigan, IT, savdo yoki xizmat sohasida ishlaydigan, jiddiy munosabat yoki yengil tanishishga ochiq yigit. E'tiborni bildirish uchun sovg'a yuborishga tayyor, status va ko'rinishni oshiruvchi (Boost, Super Like) funksiyalarga qiziqadi.
+Persona 2 — ""Ishonchli Qiz"" (20–30 yosh)
+Xavfsizlik va hurmatni birinchi o'ringa qo'yadigan, ijtimoiy tarmoqlarda faol qiz. Sovg'a olish orqali qo'shimcha daromad olish imkoniyatidan mamnun, ammo o'zini xavfsiz va nazorat ostida his qilishi muhim.
+Persona 3 — ""Uzoqdagi Hamyurtlar""
+Chet elda (Rossiya, AQSh, Koreya, BAA) yashab-ishlaydigan o'zbeklar — vatandoshlari bilan tanishish, do'stlashish yoki jiddiy munosabat qurish uchun mahalliy ilovani afzal ko'radigan segment. Diaspora uchun xalqaro to'lov usullarini qo'shish daromadni kengaytiradi."
+4. Mahsulot konsepsiyasi va asosiy funksiyalar,4.1. Profil va verifikatsiya,"Telefon raqami orqali ro'yxatdan o'tish (OTP), keyin selfie orqali yuz tasdiqlash (liveness check) — bu bot va soxta hisoblarni keskin kamaytiradi.
+Ixtiyoriy pasport/ID tasdiqlash — ""Tasdiqlangan profil"" nishonini beradi, bu ishonchni oshiradi va ko'rinishni yaxshilaydi.
+Majburiy yosh tasdiqlash — 18 yoshdan kichik foydalanuvchilar ro'yxatdan o'ta olmaydi."
+4. Mahsulot konsepsiyasi va asosiy funksiyalar,4.2. Mos kelish (matching) mexanizmi,"Asosiy o'zaro ta'sir — Tinder uslubidagi karta-svayp tizimi, unga Hinge uslubidagi qisqa savol-javoblar (""Mening orzuyim..."", ""Meni qanday hayratga solish mumkin..."") qo'shiladi — bu profilni jonlantiradi va suhbat boshlash uchun tabiiy bahona yaratadi. Foydalanuvchi ""Munosabat qidiraman"", ""Do'stlashmoqchiman"" yoki ""Hali bilmayman"" niyatini tanlaydi — bu moslik algoritmini aniqlashtiradi."
+4. Mahsulot konsepsiyasi va asosiy funksiyalar,4.3. Suhbat va aloqa,"Faqat ikki tomon ""mos kelgandan"" (match) keyin yozishma ochiladi — telefon raqami avtomatik oshkor qilinmaydi.
+Ilova ichida matn, ovozli xabar va video qo'ng'iroq imkoniyati — foydalanuvchini uchinchi tomon messenjerlariga chiqib ketishdan saqlaydi va xavfsizlikni ta'minlaydi.
+AI-yordamida ""suhbatni boshlash"" maslahatlari (premium funksiya) — noqulay sukunatni yengillashtiradi."
+4. Mahsulot konsepsiyasi va asosiy funksiyalar,4.4. Ko'rinish va e'tibor funksiyalari,"Super Like — alohida e'tiborni bildirish.
+Boost — ma'lum vaqt davomida profilni ko'rinish ro'yxatining yuqorisiga chiqarish.
+Incognito (ko'rinmas) rejim — faqat o'zi yoqtirgan kishilarga ko'rinish."
+4. Mahsulot konsepsiyasi va asosiy funksiyalar,4.5. Xavfsizlik markazi,"Bitta tugma bilan bloklash va shikoyat qilish.
+Suhbatdosh haqida ma'lumotni ishonchli kontaktga ulashish (birinchi real uchrashuv uchun).
+AI orqali xabarlar va suratlarni avtomatik moderatsiya qilish (yalang'ochlik, tahqirlovchi til aniqlanadi)."
+5. Monetizatsiya strategiyasi,,"Diydor uchun ikki qatlamli daromad arxitekturasi tavsiya etiladi: (1) barqaror, takrorlanuvchi obuna daromadi va (2) yuqori marjali, impulsga asoslangan tanga va sovg'a iqtisodiyoti. Sanoat tajribasi shuni ko'rsatadiki, faqat obunaga tayanish daromadni cheklaydi, faqat mikro-to'lovlarga tayanish esa barqarorlikni pasaytiradi — ikkisining kombinatsiyasi eng yuqori umumiy daromadni (ARPU) beradi."
+5. Monetizatsiya strategiyasi,5.1. Obuna darajalari,"Daraja
+Taxminiy narx (oylik)
+Asosiy imkoniyatlar
+Bepul
+0 so'm
+Kuniga cheklangan svayp, asosiy moslik, cheklangan xabar yuborish
+Diydor Plus
+39 000 – 59 000 so'm
+Cheksiz svayp, haftada 5 Super Like, profilni qaytarish (Rewind)
+Diydor Gold
+89 000 – 119 000 so'm
+Plus + kim sizni yoqtirganini ko'rish, kengaytirilgan filtrlar
+Diydor Platinum
+149 000 – 199 000 so'm
+Gold + ustuvor ko'rinish, xabarni moslikdan oldin yuborish, oyiga 1 Boost
+Haftalik va oylik tarif variantlarini parallel taklif qilish tavsiya etiladi — qisqa muddatli (haftalik) tariflar to'lovga tez ko'nikish hosil qiladi, yillik tarif esa chegirma evaziga uzoq muddatli mablag' oqimini ta'minlaydi. Narxlar yosh, hudud va faollikka qarab dinamik moslashtirilishi mumkin, biroq narx siyosati shaffof bo'lishi va to'lovni bekor qilish jarayoni App Store/Play Store qoidalariga to'liq mos kelishi shart — aks holda foydalanuvchi ishonchi va ilova reytingi zarar ko'radi."
+5. Monetizatsiya strategiyasi,5.2. Sovg'a iqtisodiyoti — markaziy farqlovchi mexanizm,"Bu Diydor'ning eng o'ziga xos daromad manbai bo'lib, foydalanuvchini majburlamasdan, balki tabiiy hissiy motivatsiya orqali pul sarflashga yo'naltiradi. Mexanizm quyidagi bosqichlardan iborat:
+Yigit Payme, Click, Uzcard yoki Humo orqali real pulga ichki valyuta — ""Yurak tangalari"" (coins) sotib oladi.
+Tanga katalogidagi sovg'alar (gul, shokolad, yulduz, ""Olmos yurak"" kabi ramziy obyektlar) turli narxlarda taqdim etiladi — eng arzonidan eksklyuziv, qimmat sovg'alargacha.
+Sovg'a faqat ikki tomon allaqachon ""mos kelgan"" va suhbat boshlangan holatda yuborilishi mumkin — bu spam va majburlashni oldini oladi.
+Qiz sovg'a qabul qilganda, sovg'a qiymatining belgilangan ulushi (taklif: 50–60%) uning ichki hamyoniga real pul ekvivalentida kreditlanadi.
+To'plangan mablag' belgilangan minimal chegaradan (masalan, 100 000 so'm) oshganda, KYC (shaxsni tasdiqlash) tekshiruvidan so'ng, Payme/Click orqali bank kartasiga yechib olinadi.
+Qolgan ulush (40–50%) platforma daromadi bo'lib, to'lov tizimi komissiyasi, server, moderatsiya va rivojlanish xarajatlarini qoplaydi.
+Suiiste'mol va firibgarlikning oldini olish
+Sovg'a yuborish va qabul qilish faqat 18 yoshdan oshgan, tasdiqlangan hisoblar uchun ochiq.
+Kunlik/oylik pul yechib olish chegaralari (limit) o'rnatiladi, shubhali faollik avtomatik to'xtatiladi.
+Sun'iy (bot) hisoblar va o'zaro ""o'zini-o'ziga sovg'a yuborish"" (pul yuvish urinishlari) AI orqali aniqlanadi.
+Qizlar sovg'a so'rashi yoki talab qilishi taqiqlanadi — bu faqat yigit tomonidan ixtiyoriy taklif sifatida qoladi; bu qoida platformani ""majburlash"" emas, ""hurmat ifodasi"" sifatida saqlaydi.
+Birinchi pul yechib olishdan oldin majburiy shaxsni tasdiqlash (pasport/ID skaneri) talab qilinadi."
+5. Monetizatsiya strategiyasi,5.3. Qo'shimcha ichki xaridlar (IAP),"Boost va Super Like paketlari (bir martalik xaridlar).
+AI Profil Konsultanti — eng yaxshi fotosuratlarni tanlash va bio matnini yaxshilash bo'yicha sun'iy intellekt yordami (premium funksiya).
+Real sovg'a integratsiyasi — mahalliy gulchilar va kafe-restoranlar bilan hamkorlik orqali, virtual sovg'adan real gulga/tortga buyurtma berish, undan komissiya olish.
+Birinchi uchrashuv uchun restoran/kafe chegirma hamkorligi (affiliate daromad)."
+5. Monetizatsiya strategiyasi,5.4. Reklama,"Reklama faqat bepul foydalanuvchilar uchun, juda nozik va kamdan-kam joylashtiriladi — uning asosiy vazifasi daromad emas, balki foydalanuvchini pullik darajaga o'tishga undashdir. Asosiy daromad reklamadan emas, obuna va sovg'a iqtisodiyotidan kelishi rejalashtiriladi."
+"6. Xavfsizlik, ishonch va rozilik tizimi",,Foydalanuvchi tomonidan alohida ta'kidlangan asosiy qadriyat — barcha o'zaro aloqa ikki tomonning aniq roziligi asosida bo'lishi va har qanday tahqirlash yoki zo'rlikka mutlaqo yo'l qo'yilmasligi — mahsulotning har bir qatlamida texnik va siyosiy darajada mustahkamlanishi kerak.
+"6. Xavfsizlik, ishonch va rozilik tizimi",6.1. Dizayn darajasidagi rozilik tamoyillari,"Suhbat faqat ikki tomon o'zaro ""yoqtirganidan"" keyin ochiladi — bir tomonlama xabar yuborish imkoni yo'q.
+Har bir foydalanuvchi suhbatni istalgan vaqtda, izohsiz tugata oladi va ikkinchi tomon bu haqda bildirishnoma olmaydi.
+Sovg'a va e'tibor ko'rsatish funksiyalari hech qachon suhbatni yoki javobni ""sotib olish"" sifatida taqdim etilmaydi — bu shaffof tarzda ""minnatdorlik ifodasi"" sifatida joylashtiriladi."
+"6. Xavfsizlik, ishonch va rozilik tizimi",6.2. Moderatsiya va texnik himoya,"Yuklangan har bir surat AI orqali yalang'ochlik va nomaqbul kontentga avtomatik tekshiriladi.
+Xabarlarda tahqirlovchi, tahdid soluvchi til AI orqali real vaqtda aniqlanadi va ogohlantirish yoki blokga olib keladi.
+""Zero-tolerance"" siyosati — zo'rlik tahdidi yoki jinsiy tahqirlash holatlari darhol hisobni bloklaydi va zarur holatlarda tegishli organlarga xabar berish tartibi ko'zda tutiladi.
+Inson moderatorlari jamoasi AI signal bergan murakkab holatlarni ko'rib chiqadi."
+"6. Xavfsizlik, ishonch va rozilik tizimi",6.3. Shaxsiy ma'lumotlar va maxfiylik,"Foydalanuvchi ma'lumotlari O'zbekiston qonunchiligiga muvofiq mahalliy serverlarda saqlanishi, profil ma'lumotlari faqat tasdiqlangan, faol hisoblarga ko'rinishi va har bir foydalanuvchi o'z ma'lumotlarini istalgan vaqtda o'chirish huquqiga ega bo'lishi ta'minlanadi."
+7. Dizayn tizimi — Apple darajasidagi yumshoqlik va siljish,7.1. Dizayn falsafasi,"Apple mahsulotlarini ajratib turadigan narsa — ortiqcha bezaklar emas, balki har bir harakatning fizik mantiqqa ega bo'lishi (spring-based animatsiyalar), katta va nafas oladigan bo'sh joy, va interfeysning foydalanuvchi niyatini oldindan sezadigandek tuyulishi. Diydor uchun quyidagi tamoyillar belgilanadi:
+Minimalizm — har bir ekranda bitta asosiy harakat, ortiqcha tugma va matn yo'q.
+Tabiiy harakat — svayp, match va sovg'a animatsiyalari elastik (spring) effektlari bilan, qattiq chiziqli emas.
+Haptik teskari aloqa — match, sovg'a va Super Like paytida yengil tebranish orqali hissiy ta'sirni kuchaytirish.
+Tezkorlik — barcha o'tishlar 60 freym/soniyada, skelet-yuklash (skeleton loading) orqali kutish hissi yo'qotiladi.
+Hissiy mikro-lahzalar — moslik (match) ro'y berganda yurak yoki yorug'lik animatsiyasi, sovg'a yuborilganda uning ekran bo'ylab ""uchib borishi""."
+7. Dizayn tizimi — Apple darajasidagi yumshoqlik va siljish,7.2. Tipografiya va interfeys elementlari,"Asosiy shrift sifatida iOS uchun SF Pro, Android uchun Inter (yoki Google Sans) tavsiya etiladi — ikkisi ham yuqori o'qilishi va zamonaviy, samimiy ko'rinishi bilan ajralib turadi. Sarlavhalar yirik va qalin, asosiy matn esa yengil va keng oraliqli bo'lishi kerak. Tugmalar yumaloq burchakli (radius 16–24px), soyalar yumshoq va minimal bo'lishi tavsiya etiladi."
+7. Dizayn tizimi — Apple darajasidagi yumshoqlik va siljish,7.3. Rang palitralari,"Quyida uchta professional rang palitrasi taklif etiladi. Har biri turli pozitsiyalash strategiyasiga mos keladi; yakuniy tanlov foydalanuvchi sinovlari (A/B test) asosida amalga oshirilishi tavsiya etiladi.
+Variant A — ""Iliq quyosh"" (issiq, samimiy, energiyali)
+Rang
+Namuna
+HEX kod
+Qo'llanilishi
+Asosiy aksent
+#E8546B
+Tugmalar, match animatsiyasi, asosiy chaqiriqlar (CTA)
+Ikkinchi aksent
+#FFB199
+Fon gradientlari, sovg'a ikonkalari
+Chuqur kontrast
+#3A1F2B
+Sarlavhalar, qora rejim foni
+Neytral fon
+#FFF8F5
+Asosiy ekran foni (kunduzgi rejim)
+Variant B — ""Tun osmoni"" (premium, nafis, ishonchli)
+Rang
+Namuna
+HEX kod
+Qo'llanilishi
+Asosiy fon
+#1B1F3B
+Qora rejim asosiy foni, premium tuyg'u
+Aksent — rose gold
+#D9A05B
+Premium tugmalar, Gold/Platinum darajalar nishoni
+Yorqin aksent
+#EF6F8E
+Sovg'a va Super Like ikonkalari
+Neytral matn
+#F2EFEA
+Qora fonda matn
+Variant C — ""Bahor"" (yumshoq, xotirjam, ishonchni uyg'otuvchi)
+Rang
+Namuna
+HEX kod
+Qo'llanilishi
+Asosiy aksent
+#F2A6B0
+Asosiy tugmalar va urg'u elementlari
+Tabiat toni
+#8FAE8B
+Xavfsizlik/rozilik bilan bog'liq elementlar
+Krem fon
+#FBF6EE
+Asosiy ekran foni
+Chuqur matn rangi
+#3F3A3A
+Sarlavha va asosiy matn
+Tavsiya: ilova ishga tushirilganda ""Variant A"" asosiy brend rangi sifatida tanlanishi, ""Variant B"" esa Platinum/Gold obunachilar uchun premium qora rejim sifatida saqlanishi mumkin — bu narxlash darajalari orasidagi vizual farqni kuchaytiradi va yuqori obunaga o'tishni rag'batlantiradi."
+7. Dizayn tizimi — Apple darajasidagi yumshoqlik va siljish,7.4. Onboarding (birinchi tanishish tajribasi),"Ro'yxatdan o'tish 3 qisqa qadamdan oshmasligi kerak: (1) telefon raqami va yuz tasdiqlash, (2) asosiy fotosurat va 2–3 qisqa savol-javob, (3) niyat tanlash (tanishish / do'stlik / hali bilmayman). Har bir qadamda progress-chiziq va ilhomlantiruvchi qisqa matn ko'rsatiladi — bu tashlab ketish (drop-off) darajasini kamaytiradi."
+8. Texnik arxitektura tavsiyasi,,"Qatlam
+Tavsiya etilgan yechim
+Izoh
+Mobil ilova
+Flutter yoki React Native
+Bitta kod bazasidan iOS va Android uchun tezkor MVP
+Backend
+Node.js (NestJS) yoki Go
+Yuqori tezlik, real vaqt suhbat uchun mos
+Ma'lumotlar bazasi
+PostgreSQL + Redis
+Asosiy ma'lumot + tezkor keshlash/real-vaqt holatlar uchun
+Real-vaqt aloqa
+WebSocket / Firebase
+Chat, push-bildirishnoma, onlayn holat
+To'lov integratsiyasi
+Payme, Click, Uzcard/Humo
+Mahalliy to'lov va pul yechish uchun majburiy
+AI qatlami
+Tasniflash modeli (matching), Computer Vision (moderatsiya)
+Moslik tavsiyasi va kontent xavfsizligi uchun
+Joylashuv
+Mahalliy ma'lumot markazi / sertifikatlangan bulut
+O'zbekiston shaxsiy ma'lumotlarni saqlash qonunchiligiga muvofiqlik uchun muhim
+O'zbekiston qonunchiligi fuqarolarning shaxsiy ma'lumotlari mahalliy serverlarda saqlanishini talab qiladi — bu talab arxitektura bosqichida hisobga olinishi shart, aks holda keyinchalik ko'chirish qo'shimcha xarajat va huquqiy xavf tug'diradi."
+9. Sotuv va bozorga chiqish strategiyasi (Go-to-Market),,"Yopiq beta — Toshkent va Samarqanddagi 2–3 universitet atrofida, taklifnoma asosida cheklangan foydalanuvchi bazasi bilan boshlash; bu birinchi ""muvaffaqiyatli juftlik"" hikoyalarini yig'ish imkonini beradi.
+Referal dasturi — do'stini taklif qilgan foydalanuvchi ham, qabul qilgan ham bonus tanga oladi; bu organik o'sishning eng arzon usuli.
+Mikro-influencer marketing — mahalliy lifestyle va munosabatlar mavzusidagi blogerlar bilan hamkorlik, real (rozilik bilan) foydalanuvchi hikoyalarini TikTok/Instagram qisqa videolarida ko'rsatish.
+Telegram orqali tarqalish — O'zbekistonda Telegram foydalanuvchilarining yuqori faolligidan foydalanib, taklif havolalari va qiziqarli kontent orqali viral o'sish.
+IT Park rezidentligi va davlat hamkorligi — bu nafaqat soliq imtiyozlari, balki foydalanuvchi va investorlar nazarida ishonchlilikni oshiradi.
+Hakaton va texnologik ko'rgazmalarda qatnashish — mahsulotni sinash, fikr-mulohaza yig'ish va investor/hamkor e'tiborini tortish uchun qo'shimcha kanal.
+Offline tadbirlar — ilova orqali ro'yxatdan o'tish bilan ""tanishuv kechalari"" tashkil etish, bu raqamli va jismoniy tajribani bog'laydi."
+10. Moliyaviy model — taxminiy unit-iqtisodiyot,,"Quyidagi raqamlar faqat dastlabki rejalashtirish uchun mo'ljallangan faraziy hisob-kitob bo'lib, real bozor sinovi natijalariga qarab qayta ko'rib chiqilishi shart.
+Ko'rsatkich
+6-oy maqsadi
+12-oy maqsadi
+Faol foydalanuvchilar (oylik)
+15 000
+60 000
+To'lovchi foydalanuvchilar ulushi
+5–8%
+10–14%
+O'rtacha oylik to'lov (ARPPU)
+60 000 so'm
+85 000 so'm
+Taxminiy oylik daromad
+~54 mln so'm
+~640 mln so'm
+Sanoat o'rtachasida to'lovchi foydalanuvchi ulushi 18–20% gacha yetishi mumkin, biroq yangi mahsulot uchun dastlabki bosqichda 5–14% oralig'i real va konservativ asosdir. Sovg'a iqtisodiyoti odatda obunadan ko'ra yuqori ""whale"" effektini beradi — kichik foydalanuvchi guruhi katta qismi daromadni shakllantiradi, shuning uchun ushbu segmentni alohida tahlil qilish va parvarish qilish muhim."
+11. Xavf-xatarlar va ularni boshqarish,,"Xavf
+Ta'siri
+Boshqarish chorasi
+Ijtimoiy-madaniy qarshilik
+Brendga salbiy munosabat, konservativ tanqid
+""Hurmat va rozilik"" tilidan foydalanish, do'stlik rejimini ajratib ko'rsatish
+Moliyaviy firibgarlik / pul yuvish
+Huquqiy xavf, obro' yo'qotish
+KYC, pul yechish limitlari, AI orqali shubhali faollikni aniqlash
+App Store / Play Store siyosati
+Ilova rad etilishi yoki funksiyalar cheklanishi
+Gift/cash-out tilini ehtiyotkorlik bilan tanlash, qoidalarga oldindan moslashtirish
+Soxta profillar va botlar
+Foydalanuvchi ishonchining yo'qolishi
+Majburiy yuz tasdiqlash, AI orqali anomaliyalarni aniqlash
+Tartibga soluvchi e'tibor
+Qonuniy talablarga rioya qilmaslik xavfi
+Mahalliy serverda ma'lumot saqlash, yuridik maslahat bilan ishlash"
+12. Yo'l xaritasi (Roadmap),,"Bosqich
+Muddat
+Asosiy natija
+MVP ishlab chiqish
+1–3 oy
+Profil, svayp, suhbat, asosiy xavfsizlik funksiyalari
+Yopiq beta
+4–5 oy
+1 000–3 000 foydalanuvchi, fikr-mulohaza asosida tuzatish
+Ochiq ishga tushirish
+6-oy
+Obuna va tanga/sovg'a tizimi to'liq ishga tushadi
+Kengayish
+7–12 oy
+Diaspora bozori, brend hamkorliklari, AI funksiyalarini kengaytirish"
+13. Qo'shimcha takliflar va g'oyalar,,"Quyida loyihani kuchaytirish uchun qo'shimcha tavsiyalar keltirilgan — ular asl g'oyani buzmaydi, faqat uni boyitadi:
+Ishonch balli (Trust Score) — har bir profil uchun verifikatsiya, faollik va boshqa foydalanuvchilar bahosi asosida shakllanadigan reyting; bu sifatli foydalanuvchilarni ajratib ko'rsatadi va sovg'a tizimidagi shaffofликни oshiradi.
+""Hamroh rejimi"" — faqat do'stlik va muloqot uchun (romantik bo'lmagan) alohida rejim; bu konservativ auditoriyani ham jalb qilish imkonini beradi va ilovaning ijtimoiy qabul qilinishini kengaytiradi.
+Birinchi uchrashuv xavfsizligi funksiyasi — joylashuvni ishonchli kontakt bilan vaqtinchalik ulashish, favqulodda tugma.
+Milliy va mavsumiy kampaniyalar — Navro'z, Valentin kuni kabi sanalarga bog'liq maxsus sovg'a to'plamlari va chegirmali tanga paketlari orqali sotuvni faollashtirish.
+AI suhbat-yordamchisi — premium funksiya sifatida, foydalanuvchiga muloqotni boshlash va davom ettirish bo'yicha shaxsiylashtirilgan maslahat berish.
+Real sovg'a va xizmat ekotizimi — virtual sovg'adan tashqari, mahalliy gulchilar, qandolatchilar va restoranlar bilan hamkorlikda real sovg'a buyurtma qilish imkoni, bu qo'shimcha komissiya daromadi beradi.
+Diaspora uchun xalqaro to'lov qo'llab-quvvatlash — Stripe yoki shunga o'xshash xalqaro to'lov tizimini qo'shish orqali chet eldagi o'zbeklar auditoriyasini jalb qilish."
+14. Xulosa,,"Diydor g'oyasi ikkita isbotlangan biznes modelining — global tanishuv ilovalari (Tinder, Bumble, Hinge) va ijtimoiy sovg'a iqtisodiyoti (TikTok, Instagram Gifts) — kesishmasida joylashgan, bu kombinatsiya hozircha mahalliy bozorda to'liq egallanmagan. To'g'ri ijro etilganda — ayniqsa rozilik va xavfsizlikka qat'iy rioya qilingan, madaniy jihatdan nozik joylashtirilgan va Apple darajasidagi silliq foydalanuvchi tajribasi bilan qo'llab-quvvatlangan holda — loyiha nafaqat foydalanuvchilar uchun qadrli, balki INNASOFT uchun barqaror va o'sib boruvchi daromad manbai bo'la oladi.
+Keyingi qadam sifatida quyidagilar tavsiya etiladi: kichik miqyosdagi foydalanuvchi so'rovi/intervyu orqali g'oyani sinash, klikabel prototip (Figma) yaratish, va shu hujjatdagi MVP funksiyalari asosida texnik topshiriqni shakllantirish."

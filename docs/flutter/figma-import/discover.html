@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=390, initial-scale=1" />
+<title>Diydor — Discover (Figma import)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* ── Diydor design tokenlari (03_DESIGN_TOKENS.json bilan bir xil) ── */
+  :root{
+    --primary:#A73833; --coral-deep:#E86358; --on-primary:#FFFFFF;
+    --surface:#FCF8FB; --surface-warm:#FFFFFF; --surface-subtle:#F2F2F7;
+    --surface-container:#F0EDEF; --on-surface:#1B1B1D; --on-surface-variant:#57423F;
+    --tertiary:#005BC1; --success:#34C759; --error:#BA1A1A; --outline-variant:#DEC0BC;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Manrope',system-ui,sans-serif;}
+  body{background:#E9E6EC;display:flex;justify-content:center;padding:24px;}
+
+  /* iPhone 14 freym — Figma'da 390×844 freym bo'lib tushadi */
+  .frame{
+    position:relative;width:390px;height:844px;background:var(--surface);
+    border-radius:44px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.25);
+  }
+
+  /* ── Glass header + segmented tabs ── */
+  .header{
+    position:absolute;top:0;left:0;right:0;height:56px;z-index:40;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(252,248,251,.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  }
+  .segmented{display:flex;align-items:center;background:var(--surface-subtle);padding:4px;border-radius:9999px;width:256px;}
+  .seg{flex:1;text-align:center;padding:6px 0;border-radius:9999px;font-size:13px;font-weight:500;line-height:18px;color:var(--on-surface-variant);}
+  .seg.active{background:var(--surface-warm);color:var(--on-surface);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600;}
+
+  /* ── Karta maydoni ── */
+  .stage{position:absolute;top:56px;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;}
+
+  /* Orqadagi statik karta (stack) */
+  .card-back{
+    position:absolute;width:342px;height:456px;border-radius:24px;overflow:hidden;
+    background:var(--surface-container);transform:translateY(12px) scale(.94);
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+  }
+  .card-back img{width:100%;height:100%;object-fit:cover;}
+  .card-back .veil{position:absolute;inset:0;background:rgba(0,0,0,.10);}
+
+  /* Asosiy karta */
+  .card{
+    position:absolute;width:342px;height:456px;border-radius:24px;overflow:hidden;
+    background:var(--surface-warm);box-shadow:0 10px 30px rgba(0,0,0,.14);transform:rotate(-2deg);
+  }
+  .card .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .card .scrim{position:absolute;left:0;right:0;bottom:0;height:60%;
+    background:linear-gradient(to top, rgba(0,0,0,.90), rgba(0,0,0,.30) 50%, rgba(0,0,0,0));}
+
+  /* Drag overlay badge (YOQDI) — demo holatda ko'rsatilgan */
+  .badge{position:absolute;top:32px;left:24px;border:4px solid var(--success);color:var(--success);
+    border-radius:12px;padding:4px 12px;font-size:24px;font-weight:800;letter-spacing:2px;
+    transform:rotate(-16deg);opacity:.95;}
+
+  /* Karta ma'lumotlari */
+  .info{position:absolute;left:0;right:0;bottom:0;padding:24px;color:#fff;}
+  .name-row{display:flex;align-items:flex-end;gap:8px;}
+  .name{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1;}
+  .age{font-size:22px;font-weight:400;line-height:1;opacity:.9;padding-bottom:2px;}
+  .loc{display:flex;align-items:center;gap:6px;margin-top:8px;opacity:.85;font-size:15px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+  .chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9999px;
+    background:rgba(255,255,255,.20);border:1px solid rgba(255,255,255,.12);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:13px;font-weight:500;}
+
+  /* ── Action tugmalar ── */
+  .actions{position:absolute;left:0;right:0;bottom:104px;display:flex;align-items:center;justify-content:center;gap:24px;z-index:20;}
+  .btn{display:flex;align-items:center;justify-content:center;border-radius:9999px;background:var(--surface-warm);box-shadow:0 8px 20px rgba(0,0,0,.10);}
+  .btn-pass{width:56px;height:56px;color:var(--on-surface-variant);}
+  .btn-super{width:48px;height:48px;color:var(--tertiary);}
+  .btn-like{width:64px;height:64px;background:var(--primary);color:#fff;box-shadow:0 10px 24px rgba(167,56,51,.30);}
+
+  /* ── Bottom nav ── */
+  .nav{position:absolute;left:0;right:0;bottom:0;height:88px;background:rgba(252,248,251,.85);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--outline-variant);
+    display:flex;align-items:flex-start;justify-content:space-around;padding-top:12px;}
+  .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--on-surface-variant);font-size:11px;font-weight:500;}
+  .nav-item.active{color:var(--primary);}
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="segmented">
+        <div class="seg active">Siz uchun</div>
+        <div class="seg">Yaqin atrofda</div>
+      </div>
+    </div>
+
+    <!-- KARTA STAGE -->
+    <div class="stage">
+      <!-- Orqa karta -->
+      <div class="card-back">
+        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=700&q=80" alt="" />
+        <div class="veil"></div>
+      </div>
+
+      <!-- Asosiy karta -->
+      <div class="card">
+        <img class="photo" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&q=80" alt="Profil" />
+        <div class="scrim"></div>
+
+        <div class="badge">YOQDI</div>
+
+        <div class="info">
+          <div class="name-row">
+            <span class="name">Madina,</span>
+            <span class="age">24</span>
+            <!-- verified -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" style="margin-bottom:2px">
+              <path d="M12 1l2.4 2.4 3.3-.5.6 3.3 2.9 1.7-1.4 3 1.4 3-2.9 1.7-.6 3.3-3.3-.5L12 23l-2.4-2.4-3.3.5-.6-3.3L2.8 16l1.4-3-1.4-3 2.9-1.7.6-3.3 3.3.5L12 1zm-1.2 13.6l5-5-1.3-1.3-3.7 3.7-1.6-1.6-1.3 1.3 2.9 2.9z"/>
+            </svg>
+          </div>
+          <div class="loc">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+            <span>Toshkent</span>
+          </div>
+          <div class="chips">
+            <span class="chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M2 21v-2h18v2H2zm2-4l8-12 4 6h-3l-2-3-3.5 5.25L8 11l-3 6H4z"/></svg>
+              Sayohat
+            </span>
+            <span class="chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M12 3v10.55A4 4 0 1014 17V7h4V3h-6z"/></svg>
+              Musiqa
+            </span>
+            <span class="chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M18 3H6a2 2 0 00-2 2v14l4-4h10a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
+              Kitoblar
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION TUGMALAR -->
+    <div class="actions">
+      <div class="btn btn-pass">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
+      </div>
+      <div class="btn btn-super">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7L12 2z"/></svg>
+      </div>
+      <div class="btn btn-like">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.9-10-9.1C.4 9.1 1.2 5.6 4.3 4.5c2-.7 4 .1 5.1 1.7l.6.9.6-.9C11.7 4.6 13.7 3.8 15.7 4.5c3.1 1.1 3.9 4.6 2.3 7.4C19.5 16.1 12 21 12 21z"/></svg>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="nav">
+      <div class="nav-item active">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.9-10-9.1C.4 9.1 1.2 5.6 4.3 4.5c2-.7 4 .1 5.1 1.7l.6.9.6-.9C11.7 4.6 13.7 3.8 15.7 4.5c3.1 1.1 3.9 4.6 2.3 7.4C19.5 16.1 12 21 12 21z"/></svg>
+        <span>Kashf</span>
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 5a3 3 0 110 6 3 3 0 010-6zm0 13a8 8 0 01-5.3-2c.1-1.6 3.3-2.5 5.3-2.5s5.2.9 5.3 2.5A8 8 0 0112 20z"/></svg>
+        <span>Yoqtirishlar</span>
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
+        <span>Xabarlar</span>
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>
+        <span>Profil</span>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
