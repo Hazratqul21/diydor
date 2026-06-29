@@ -19,7 +19,22 @@ body {
   font-family: theme('fontFamily.sans');
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   overscroll-behavior-y: none;
+}
+
+/* Fraunces optik o'lchamlash — katta sarlavhada nozik, kichikda o'qiladigan */
+.font-display,
+[class*='font-headline'] {
+  font-optical-sizing: auto;
+  font-feature-settings: 'ss01';
+}
+
+/* Issiq matn tanlash (brend rangi) */
+::selection {
+  background-color: theme('colors.primary-fixed');
+  color: theme('colors.on-primary-fixed');
 }
 
 /* Material Symbols asosiy sozlamasi */

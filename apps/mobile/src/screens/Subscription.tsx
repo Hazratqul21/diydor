@@ -177,7 +177,7 @@ export default function Subscription() {
                   onClick={() => setTier(g.tier)}
                   className={`w-full text-left p-4 rounded-2xl border-2 transition-colors ${
                     on
-                      ? 'border-primary bg-primary-fixed/20 shadow-[0_8px_24px_rgba(167,56,51,0.15)]'
+                      ? 'border-primary bg-primary-fixed/20 shadow-[0_8px_24px_rgba(190,74,46,0.15)]'
                       : 'border-transparent bg-surface-container'
                   }`}
                 >

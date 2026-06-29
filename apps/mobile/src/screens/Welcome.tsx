@@ -72,7 +72,7 @@ export default function Welcome() {
   if (phase === 'booting') {
     return (
       <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-surface gap-4">
-        <div className="w-16 h-16 rounded-3xl bg-primary text-on-primary flex items-center justify-center shadow-[0_8px_24px_rgba(167,56,51,0.3)] heartbeat">
+        <div className="w-16 h-16 rounded-3xl bg-primary text-on-primary flex items-center justify-center shadow-[0_8px_24px_rgba(190,74,46,0.3)] heartbeat">
           <Icon name="favorite" fill className="text-[32px]" />
         </div>
         <div className="w-6 h-6">
@@ -111,10 +111,10 @@ export default function Welcome() {
       {/* Content */}
       <div className="flex-1 flex flex-col justify-end px-margin-main pb-stack-lg z-20 -mt-10">
         <div className="flex flex-col items-center text-center gap-stack-sm mb-stack-lg">
-          <h1 className="text-headline-lg font-headline-lg text-primary fade-in-up-d1 tracking-tight">
+          <h1 className="text-display-lg font-display text-primary fade-in-up-d1 leading-none">
             {title}
           </h1>
-          <p className="text-body-lg font-body-lg text-on-surface-variant fade-in-up-d2 max-w-[280px]">
+          <p className="text-body-lg font-body-lg text-on-surface-variant fade-in-up-d2 max-w-[280px] leading-relaxed">
             {subtitle}
           </p>
         </div>
@@ -123,7 +123,7 @@ export default function Welcome() {
           <button
             onClick={start}
             disabled={loading}
-            className="w-full h-[56px] rounded-button bg-primary text-on-primary text-body-lg font-body-lg press flex items-center justify-center shadow-[0_8px_16px_rgba(167,56,51,0.2)] disabled:opacity-60 active:shadow-[0_4px_8px_rgba(167,56,51,0.2)]"
+            className="w-full h-[56px] rounded-button bg-primary text-on-primary text-body-lg font-body-lg press flex items-center justify-center shadow-[0_8px_16px_rgba(190,74,46,0.2)] disabled:opacity-60 active:shadow-[0_4px_8px_rgba(190,74,46,0.2)]"
           >
             {loading ? <Icon name="progress_activity" className="animate-spin" /> : 'Boshlash'}
           </button>

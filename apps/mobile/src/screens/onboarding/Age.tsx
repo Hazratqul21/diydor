@@ -78,7 +78,7 @@ export default function Age() {
           <button
             onClick={next}
             disabled={!valid || saving}
-            className="press w-full h-[56px] rounded-button bg-primary text-on-primary text-body-lg font-body-lg flex items-center justify-center shadow-[0_4px_14px_rgba(167,56,51,0.25)] disabled:opacity-50"
+            className="press w-full h-[56px] rounded-button bg-primary text-on-primary text-body-lg font-body-lg flex items-center justify-center shadow-[0_4px_14px_rgba(190,74,46,0.25)] disabled:opacity-50"
           >
             {saving ? <Icon name="progress_activity" className="animate-spin" /> : 'Davom etish'}
           </button>

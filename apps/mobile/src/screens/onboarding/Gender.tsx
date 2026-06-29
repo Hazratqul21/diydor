@@ -103,7 +103,7 @@ export default function Gender() {
           <button
             onClick={next}
             disabled={saving}
-            className="press w-full h-[56px] rounded-xl bg-primary text-on-primary text-body-lg font-body-lg shadow-[0_4px_14px_rgba(167,56,51,0.25)] flex items-center justify-center disabled:opacity-60"
+            className="press w-full h-[56px] rounded-xl bg-primary text-on-primary text-body-lg font-body-lg shadow-[0_4px_14px_rgba(190,74,46,0.25)] flex items-center justify-center disabled:opacity-60"
           >
             {saving ? <Icon name="progress_activity" className="animate-spin" /> : 'Davom etish'}
           </button>

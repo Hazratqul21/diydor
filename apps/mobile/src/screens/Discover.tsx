@@ -328,7 +328,7 @@ function ActionButtons({ onAct }: { onAct: (a: SwipeDir) => void }) {
         whileTap={{ scale: 0.86 }}
         aria-label="Yoqtirish"
         onClick={() => onAct('right')}
-        className="w-16 h-16 rounded-full bg-primary shadow-[0_10px_24px_rgba(167,56,51,0.3)] flex items-center justify-center text-white"
+        className="w-16 h-16 rounded-full bg-primary shadow-[0_10px_24px_rgba(190,74,46,0.3)] flex items-center justify-center text-white"
       >
         <Icon name="favorite" fill className="text-[32px]" />
       </motion.button>
