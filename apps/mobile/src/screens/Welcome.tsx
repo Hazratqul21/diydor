@@ -123,7 +123,7 @@ export default function Welcome() {
           <button
             onClick={start}
             disabled={loading}
-            className="w-full h-[56px] rounded-button bg-primary text-on-primary text-body-lg font-body-lg press flex items-center justify-center shadow-[0_8px_16px_rgba(190,74,46,0.2)] disabled:opacity-60 active:shadow-[0_4px_8px_rgba(190,74,46,0.2)]"
+            className="w-full h-[56px] rounded-button bg-primary text-on-primary text-body-lg font-body-lg clay-press clay-primary flex items-center justify-center disabled:opacity-60"
           >
             {loading ? <Icon name="progress_activity" className="animate-spin" /> : 'Boshlash'}
           </button>

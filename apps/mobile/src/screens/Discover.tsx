@@ -100,7 +100,7 @@ export default function Discover() {
           <button
             onClick={() => setTab('for-you')}
             className={`flex-1 py-1.5 rounded-full text-label-sm font-label-sm transition-colors ${
-              tab === 'for-you' ? 'bg-surface-warm shadow-sm text-on-surface' : 'text-on-surface-variant'
+              tab === 'for-you' ? 'bg-surface-warm clay-sm text-on-surface' : 'text-on-surface-variant'
             }`}
           >
             Siz uchun
@@ -108,7 +108,7 @@ export default function Discover() {
           <button
             onClick={() => setTab('nearby')}
             className={`flex-1 py-1.5 rounded-full text-label-sm font-label-sm transition-colors ${
-              tab === 'nearby' ? 'bg-surface-warm shadow-sm text-on-surface' : 'text-on-surface-variant'
+              tab === 'nearby' ? 'bg-surface-warm clay-sm text-on-surface' : 'text-on-surface-variant'
             }`}
           >
             Yaqin atrofda
@@ -312,7 +312,7 @@ function ActionButtons({ onAct }: { onAct: (a: SwipeDir) => void }) {
         whileTap={{ scale: 0.86 }}
         aria-label="O'tkazish"
         onClick={() => onAct('left')}
-        className="w-14 h-14 rounded-full bg-surface-container-lowest shadow-[0_8px_20px_rgba(0,0,0,0.1)] flex items-center justify-center text-secondary"
+        className="w-14 h-14 rounded-full bg-surface-container-lowest clay flex items-center justify-center text-secondary"
       >
         <Icon name="close" className="text-[28px]" />
       </motion.button>
@@ -320,7 +320,7 @@ function ActionButtons({ onAct }: { onAct: (a: SwipeDir) => void }) {
         whileTap={{ scale: 0.86 }}
         aria-label="Super Like"
         onClick={() => onAct('up')}
-        className="w-12 h-12 rounded-full bg-surface-container-lowest shadow-[0_8px_20px_rgba(0,0,0,0.1)] flex items-center justify-center text-tertiary"
+        className="w-12 h-12 rounded-full bg-surface-container-lowest clay flex items-center justify-center text-tertiary"
       >
         <Icon name="star" fill className="text-[24px]" />
       </motion.button>
@@ -328,7 +328,7 @@ function ActionButtons({ onAct }: { onAct: (a: SwipeDir) => void }) {
         whileTap={{ scale: 0.86 }}
         aria-label="Yoqtirish"
         onClick={() => onAct('right')}
-        className="w-16 h-16 rounded-full bg-primary shadow-[0_10px_24px_rgba(190,74,46,0.3)] flex items-center justify-center text-white"
+        className="w-16 h-16 rounded-full bg-primary clay-primary flex items-center justify-center text-white"
       >
         <Icon name="favorite" fill className="text-[32px]" />
       </motion.button>

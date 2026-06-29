@@ -37,9 +37,9 @@ body {
   color: theme('colors.on-primary-fixed');
 }
 
-/* Material Symbols asosiy sozlamasi */
+/* Material Symbols (Rounded — yumshoq, premium) */
 .material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
+  font-family: 'Material Symbols Rounded';
   font-weight: normal;
   font-style: normal;
   line-height: 1;
@@ -180,6 +180,36 @@ body {
 }
 .press:active {
   transform: scale(0.96);
+}
+
+/* ── Soft clay — yumshoq tactile chuqurlik (issiq krem yuza uchun) ── */
+.clay {
+  box-shadow:
+    5px 5px 12px rgba(150, 90, 60, 0.16),
+    -5px -5px 11px rgba(255, 255, 255, 0.92);
+}
+.clay-sm {
+  box-shadow:
+    3px 3px 8px rgba(150, 90, 60, 0.13),
+    -3px -3px 7px rgba(255, 255, 255, 0.9);
+}
+/* Primary (terracotta) tugma uchun — issiq highlight bilan */
+.clay-primary {
+  box-shadow:
+    5px 6px 14px rgba(150, 70, 45, 0.32),
+    -3px -4px 9px rgba(255, 214, 196, 0.45);
+}
+/* Bosilganda ichkariga botadi (tactile feedback) */
+.clay-press {
+  transition:
+    box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.clay-press:active {
+  transform: scale(0.97);
+  box-shadow:
+    inset 3px 3px 7px rgba(150, 90, 60, 0.2),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.85);
 }
 
 /* Reduced motion — animatsiyalarni o'chiramiz (foydalanuvchi sozlamasi) */
