@@ -1,6 +1,12 @@
 import { apiFetch } from './api';
 
-const ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api').replace(/\/api$/, '');
+// Rasm origin: devda localhost:3000, PRODDA same-origin (location.origin) —
+// aks holda /uploads rasmlar http://localhost:3000 dan so'ralib yuklanmaydi.
+const _isLocalImg =
+  location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const ORIGIN = (
+  import.meta.env.VITE_API_URL ?? (_isLocalImg ? 'http://localhost:3000/api' : `${location.origin}/api`)
+).replace(/\/api$/, '');
 
 /** Rasm URL'ini hal qiladi: tashqi (http) bo'lsa o'zicha, /uploads bo'lsa API origin bilan. */
 export function photoUrl(url: string | undefined | null): string {
