@@ -1,7 +1,13 @@
 import { io, Socket } from 'socket.io-client';
 import { getToken } from './api';
 
-const BASE = import.meta.env.VITE_API_URL ?? `http://${window.location.hostname}:3000`; // API url without /api path usually
+// Socket manzili: devda localhost:3000, PRODDA same-origin (https/wss saqlanadi,
+// nginx /socket.io ni :3000 ga proxy qiladi). Mixed Content xatosini oldini oladi.
+const _isLocalHostWs =
+  location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const BASE =
+  import.meta.env.VITE_API_URL ??
+  (_isLocalHostWs ? `http://${location.hostname}:3000` : location.origin);
 
 let socket: Socket | null = null;
 

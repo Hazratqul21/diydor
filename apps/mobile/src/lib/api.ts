@@ -1,4 +1,12 @@
-const BASE = import.meta.env.VITE_API_URL ?? `http://${window.location.hostname}:3000/api`;
+// API manzili: VITE_API_URL bo'lsa o'sha; aks holda devda localhost:3000,
+// PRODDA same-origin (location.origin/api) — https saqlanadi, nginx /api ni
+// :3000 ga proxy qiladi. (Avval http://host:3000 edi -> HTTPS'da Mixed Content
+// bloklanardi va ilova ishlamasdi.)
+const _isLocalHost =
+  location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const BASE =
+  import.meta.env.VITE_API_URL ??
+  (_isLocalHost ? `http://${location.hostname}:3000/api` : `${location.origin}/api`);
 const TOKEN_KEY = 'diydor_token';
 
 export function getToken(): string | null {
