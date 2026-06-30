@@ -23,6 +23,12 @@ export class SmsService {
   }
 
   async send(phone: string, text: string): Promise<void> {
+    // ── ESKIZ SMS VAQTINCHA O'CHIRILGAN (user iltimosi: "keyin yoqamiz") ──
+    // Telefon-OTP hozircha ishlatilmaydi. Eskiz'ga so'rov YUBORILMAYDI —
+    // faqat logga yoziladi. Qayta yoqish: shu blokdagi 2 qatorni o'chiring.
+    this.logger.warn(`[SMS o'chiq — Eskiz vaqtincha] ${phone}: ${text}`);
+    return;
+    // ─────────────────────────────────────────────────────────────────────
     if (!this.configured) {
       this.logger.warn(`[DEV SMS] ${phone}: ${text}`);
       return;
