@@ -94,8 +94,8 @@ services:
 
   verify:
     build:
-      context: .
-      dockerfile: services/verify/Dockerfile
+      context: ./services/verify
+      dockerfile: Dockerfile
     image: diydor/verify:latest
     container_name: diydor-verify
     restart: unless-stopped
