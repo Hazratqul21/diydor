@@ -47,12 +47,10 @@ Diydor — O'zbekiston va MDH bozori uchun moslashtirilgan tanishuv ilovasi. Mar
 ```
 tanishuv_ilova/
 ├── apps/
-│   ├── tma/          # React + Vite + TS — Telegram Mini App frontend
+│   ├── mobile/         # React + Vite + TS — PWA / Telegram Mini App frontend
 │   └── api/          # NestJS — REST + Socket.IO real-time backend
-├── services/
-│   └── verify/       # FastAPI — selfie liveness + face match (MediaPipe + DeepFace)
-└── packages/
-    └── design-tokens/ # Rang/tipografiya/radius — Tailwind + Figma bilan sinxron
+└── services/
+    └── verify/       # FastAPI — selfie liveness + face match (MediaPipe + DeepFace)
 ```
 
 **Stack qisqacha:** React+Tailwind+Framer Motion (TMA) · NestJS+PostgreSQL+Redis (backend) · Socket.IO (chat) · Payme/Click (to'lov) · Python/FastAPI (verifikatsiya) · UZ mahalliy hosting (qonun talabi). To'liq tafsilot → `Diydor_Tech_Stack.csv`.

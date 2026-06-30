@@ -1,0 +1,124 @@
+# ──────────────────────────────────────────────────────────────
+# Diydor — to'liq production stack
+#   • postgres  (PostgreSQL 16)
+#   • redis     (Redis 7, AOF persist)
+#   • api       (NestJS + Prisma)
+#   • admin     (React + Vite -> nginx)
+#
+# Ishlatish:
+#   cp .env.docker.example .env.docker   # va qiymatlarni to'ldiring
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Admin host portda 8080 da chiqadi (serverdagi mavjud nginx 80/443 ga
+# tegmaslik uchun). Reverse-proxy/tunnelni shu portga yo'naltiring.
+# ──────────────────────────────────────────────────────────────
+name: diydor
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: diydor-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-diydor}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-diydor}
+      POSTGRES_DB: ${POSTGRES_DB:-diydor}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-diydor}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [diydor]
+
+  redis:
+    image: redis:7-alpine
+    container_name: diydor-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [diydor]
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: diydor/api:latest
+    container_name: diydor-api
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      # Konteyner ichidagi servis nomlari bilan ulanish (env_file dagidan ustun)
+      DATABASE_URL: postgresql://${POSTGRES_USER:-diydor}:${POSTGRES_PASSWORD:-diydor}@postgres:5432/${POSTGRES_DB:-diydor}?schema=public
+      REDIS_URL: redis://redis:6379
+      VERIFY_URL: http://verify:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/apps/api/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    networks: [diydor]
+
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+      args:
+        VITE_API_URL: /api
+    image: diydor/admin:latest
+    container_name: diydor-admin
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+    networks: [diydor]
+
+  verify:
+    build:
+      context: .
+      dockerfile: services/verify/Dockerfile
+    image: diydor/verify:latest
+    container_name: diydor-verify
+    restart: unless-stopped
+    networks: [diydor]
+
+  mobile:
+    build:
+      context: .
+      dockerfile: apps/mobile/Dockerfile
+    image: diydor/mobile:latest
+    container_name: diydor-mobile
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+    networks: [diydor]
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:
+
+networks:
+  diydor:
+    driver: bridge
