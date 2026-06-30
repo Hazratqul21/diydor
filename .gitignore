@@ -41,3 +41,6 @@ services/**/__pycache__/
 
 # local agent/editor config
 .claude/
+
+# DB backuplar (host)
+backups/

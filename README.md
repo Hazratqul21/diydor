@@ -57,6 +57,33 @@ tanishuv_ilova/
 
 ---
 
+## 🚀 Production deploy (Docker)
+
+To'liq stack `docker-compose.prod.yml` da: **postgres · redis · api · admin · verify · mobile**.
+
+**Birinchi deploy (server'da):**
+```bash
+git clone https://github.com/Hazratqul21/diydor.git && cd diydor
+cp .env.docker.example .env.docker     # qiymatlarni TO'LDIRING (parol, JWT, Payme...)
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+**Keyingi yangilashlar (XAVFSIZ — DB'ga tegmaydi):**
+```bash
+./scripts/deploy.sh        # git pull + backup + qayta build + restart
+```
+
+### 🔒 Ma'lumotlar xavfsizligi (MUHIM)
+- **DB internetga ochilmagan** — postgres/redis faqat ichki `diydor` tarmog'ida (host portga chiqmaydi). Faqat `api` konteyneri ko'radi.
+- **Ma'lumotlar doimiy** — `diydor_pgdata`, `diydor_redisdata`, `diydor_uploads` nomlangan volume'larda. Konteynerni qayta qurish/o'chirish ma'lumotni **YO'QOTMAYDI**.
+- **⛔ HECH QACHON** `docker compose down -v` yoki `docker volume rm` ishlatmang — bu yagona ma'lumot o'chiradigan komanda.
+- **Backup:** `./scripts/backup-db.sh` → `backups/diydor-*.sql.gz` (oxirgi 14 ta saqlanadi). Deploy oldidan avtomatik chaqiriladi.
+- **Schema yangilash** — entrypoint `prisma db push` ishlatadi (idempotent, ma'lumot o'chirmaydi; buzg'unchi o'zgarishda ishlamay xatolik beradi, ma'lumotni saqlaydi).
+
+> **Flutter ulanishi:** desktop/mobil Flutter ilovasi shu backend'ning `/api` (REST) va `/socket.io` (real-time) ga ulanadi. Backend yagona va barqaror — frontend texnologiyasidan mustaqil.
+
+---
+
 ## ▶️ Keyingi qadamlar
 
 1. Tech stack tasdiqlash → repo skeletini yoqish (yuqoridagi struktura)

@@ -114,10 +114,15 @@ services:
       - "80:80"
     networks: [diydor]
 
+# Aniq nomlangan volume'lar — ma'lumotlar konteyner qayta qurilsa/o'chsa ham
+# SAQLANADI. Faqat `docker volume rm` yoki `compose down -v` ularni o'chiradi.
 volumes:
   pgdata:
+    name: diydor_pgdata
   redisdata:
+    name: diydor_redisdata
   uploads:
+    name: diydor_uploads
 
 networks:
   diydor:
