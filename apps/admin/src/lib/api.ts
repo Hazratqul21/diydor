@@ -1,6 +1,14 @@
 const BASE = import.meta.env.VITE_API_URL ?? `http://${window.location.hostname}:3000/api`;
 const TOKEN_KEY = 'diydor_admin_token';
 
+// Rasm/asset origin: API origin (diydorapp.uz), admin domeni emas.
+// `/uploads/...` admin.diydorapp.uz da xizmat qilinmaydi — API domeniga yo'naltiramiz.
+const ASSET_ORIGIN = BASE.replace(/\/api$/, '');
+export function assetUrl(url: string | null | undefined): string {
+  if (!url) return '';
+  return url.startsWith('http') ? url : ASSET_ORIGIN + url;
+}
+
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }

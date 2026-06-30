@@ -136,6 +136,19 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* Noutbuk/desktop: 480px ilova-freymi yon tomonlarini brendlangan issiq fon bilan
+   to'ldiramiz — telefon-freym katta ekranda "qisilgan" emas, premium ko'rinadi.
+   Freym to'liq balandlikda qoladi (fixed header/nav buzilmaydi). */
+@media (min-width: 600px) {
+  body {
+    background-color: rgb(var(--c-surface-dim));
+    background-image:
+      radial-gradient(1100px 560px at 50% -8%, rgb(var(--c-primary) / 0.14), transparent 62%),
+      radial-gradient(820px 480px at 50% 108%, rgb(var(--c-surface-tint) / 0.10), transparent 60%);
+    background-attachment: fixed;
+  }
+}
+
 /* Fraunces optik o'lchamlash — katta sarlavhada nozik, kichikda o'qiladigan */
 .font-display,
 [class*='font-headline'] {

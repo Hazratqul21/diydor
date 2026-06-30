@@ -29,7 +29,7 @@ import { OfflineBanner } from './components/OfflineBanner';
  */
 export default function App() {
   return (
-    <div className="mx-auto max-w-[480px] min-h-screen bg-surface relative overflow-x-hidden">
+    <div className="mx-auto max-w-[480px] min-h-screen bg-surface relative overflow-x-hidden md:shadow-[0_20px_70px_-15px_rgb(43_36_33_/_0.35)] md:ring-1 md:ring-on-surface/5">
       <OfflineBanner />
       <Routes>
         <Route path="/" element={<Welcome />} />

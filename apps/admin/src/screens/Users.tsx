@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api } from '../lib/api';
+import { api, assetUrl } from '../lib/api';
 import { Icon } from '../components/Icon';
 
 interface AdminUser {
@@ -81,7 +81,7 @@ export default function Users() {
                   <td className="p-3">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-black/10 overflow-hidden shrink-0">
-                        {u.photos[0] && <img src={u.photos[0].url} className="w-full h-full object-cover" />}
+                        {u.photos[0] && <img src={assetUrl(u.photos[0].url)} className="w-full h-full object-cover" />}
                       </div>
                       <div>
                         <div className="font-semibold flex items-center gap-1">
