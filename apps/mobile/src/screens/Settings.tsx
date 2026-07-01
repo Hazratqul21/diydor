@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { clearToken } from '@/lib/api';
 import { disconnectSocket } from '@/lib/socket';
 import { deleteAccount } from '@/lib/data';
+import { getMe, updateProfile } from '@/lib/auth';
 import { Icon } from '@/components/Icon';
 import { LEGAL_LINKS } from './legal/legalContent';
 
@@ -10,6 +11,23 @@ export default function Settings() {
   const nav = useNavigate();
   const [confirmDel, setConfirmDel] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showSender, setShowSender] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    getMe()
+      .then((m) => setShowSender(m.notifyShowSender))
+      .catch(() => setShowSender(false));
+  }, []);
+
+  async function toggleSender() {
+    const next = !showSender;
+    setShowSender(next); // optimistik
+    try {
+      await updateProfile({ notifyShowSender: next });
+    } catch {
+      setShowSender(!next); // qaytarish
+    }
+  }
 
   function handleLogout() {
     disconnectSocket();
@@ -68,6 +86,36 @@ export default function Settings() {
           >
             <Icon name="delete_forever" className="text-[18px]" />
             Akkauntni o'chirish
+          </button>
+        </div>
+
+        {/* Bildirishnoma maxfiyligi */}
+        <div className="bg-surface-variant/30 rounded-2xl p-4 border border-outline-variant/30">
+          <h2 className="text-title-md font-title-md text-on-surface mb-2">Bildirishnoma</h2>
+          <button
+            onClick={toggleSender}
+            disabled={showSender === null}
+            className="w-full flex items-center justify-between gap-3 py-2 press disabled:opacity-50"
+          >
+            <span className="flex flex-col items-start text-left">
+              <span className="text-label-lg font-label-lg text-on-surface">Telegram bildirishnomada ism</span>
+              <span className="text-label-md text-on-surface-variant">
+                {showSender
+                  ? '"Falonchi sizga xabar yubordi" ko\'rinadi'
+                  : 'Yashirin: "Sizga yangi xabar bor" (ism ko\'rinmaydi)'}
+              </span>
+            </span>
+            <span
+              className={`shrink-0 w-12 h-7 rounded-full transition-colors relative ${
+                showSender ? 'bg-primary' : 'bg-surface-container-highest'
+              }`}
+            >
+              <span
+                className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-all ${
+                  showSender ? 'left-6' : 'left-1'
+                }`}
+              />
+            </span>
           </button>
         </div>
 

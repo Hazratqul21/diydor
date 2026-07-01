@@ -55,6 +55,7 @@ export class UsersService {
     if (dto.city !== undefined) data.city = dto.city;
     if (dto.latitude !== undefined) data.latitude = dto.latitude;
     if (dto.longitude !== undefined) data.longitude = dto.longitude;
+    if (dto.notifyShowSender !== undefined) data.notifyShowSender = dto.notifyShowSender;
 
     if (dto.birthDate !== undefined) {
       const birth = new Date(dto.birthDate);

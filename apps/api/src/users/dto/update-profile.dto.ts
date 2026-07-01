@@ -5,6 +5,7 @@ import {
   IsDateString,
   IsNumber,
   IsArray,
+  IsBoolean,
   MaxLength,
   ArrayMaxSize,
 } from 'class-validator';
@@ -56,4 +57,8 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsNumber()
   longitude?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  notifyShowSender?: boolean;
 }

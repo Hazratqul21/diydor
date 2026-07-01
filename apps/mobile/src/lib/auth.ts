@@ -19,6 +19,7 @@ export interface Me {
   isVerified: boolean;
   coinBalance: number;
   walletBalance: number;
+  notifyShowSender: boolean;
   photos: { id: string; url: string; order: number }[];
 }
 
@@ -31,6 +32,7 @@ export interface ProfilePatch {
   interests?: string[];
   birthDate?: string;
   city?: string;
+  notifyShowSender?: boolean;
 }
 
 /**

@@ -85,6 +85,7 @@ model User {
   isVerified     Boolean        @default(false) // selfie verifikatsiyadan o'tganmi
   isBanned       Boolean        @default(false)
   trustScore     Int            @default(0) // 0-100, fon tizimi hisoblaydi
+  notifyShowSender Boolean      @default(false) // Telegram push'da yuboruvchi ismi ko'rinsinmi (standart: yashirin)
   lastActiveAt   DateTime       @default(now())
 
   // Iqtisodiyot

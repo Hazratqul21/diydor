@@ -24,17 +24,31 @@ export class MatchesService {
    */
   private async pushIfOffline(recipientId: string, senderId: string, kind: 'text' | 'image' | 'gift') {
     if (await this.chatGateway.isOnline(recipientId)) return;
-    const sender = await this.prisma.user.findUnique({
-      where: { id: senderId },
-      select: { firstName: true },
+    // Oluvchining maxfiylik sozlamasi: yuboruvchi ismi ko'rsatilsinmi?
+    const recipient = await this.prisma.user.findUnique({
+      where: { id: recipientId },
+      select: { notifyShowSender: true },
     });
-    const name = sender?.firstName ?? 'Kimdir';
-    const body =
-      kind === 'image'
+    let name = 'Kimdir';
+    if (recipient?.notifyShowSender) {
+      const sender = await this.prisma.user.findUnique({
+        where: { id: senderId },
+        select: { firstName: true },
+      });
+      name = sender?.firstName ?? 'Kimdir';
+    }
+    // Yashirin rejim (standart): ism ko'rsatilmaydi
+    const body = recipient?.notifyShowSender
+      ? kind === 'image'
         ? `📷 <b>${name}</b> sizga rasm yubordi`
         : kind === 'gift'
           ? `🎁 <b>${name}</b> sizga sovg'a yubordi`
-          : `💬 <b>${name}</b> sizga yangi xabar yubordi`;
+          : `💬 <b>${name}</b> sizga yangi xabar yubordi`
+      : kind === 'image'
+        ? `📷 Sizga yangi rasm bor`
+        : kind === 'gift'
+          ? `🎁 Sizga yangi sovg'a bor`
+          : `💬 Sizga yangi xabar bor`;
     await this.telegram.sendToUser(recipientId, body);
   }
 
