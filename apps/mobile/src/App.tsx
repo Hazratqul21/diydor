@@ -25,6 +25,7 @@ import LegalPage from './screens/legal/LegalPage';
 import { OfflineBanner } from './components/OfflineBanner';
 import { tmaReady, lockTmaScroll, isTMA } from './lib/tma';
 import { ensureSocketConnection } from './lib/socket';
+import { getToken } from './lib/api';
 
 /**
  * Diydor ilova. Desktopda telefon-freym (max-w-480) ko'rinadi,
@@ -41,6 +42,19 @@ export default function App() {
     }
     // WebSocket ulanishni tiklash
     ensureSocketConnection();
+
+    // Kunlik bonusni tekshirish
+    if (getToken()) {
+      import('./lib/data').then(({ claimDailyBonus }) => {
+        claimDailyBonus().then((res) => {
+          if (res.success && res.bonusAmount > 0) {
+            import('./lib/tma').then(({ hapticSuccess }) => hapticSuccess());
+            // Optional: You could show a toast or alert here for the daily bonus
+            console.log(`Tabriklaymiz! Kunlik bonus: ${res.bonusAmount} tanga!`);
+          }
+        }).catch(() => {});
+      });
+    }
   }, []);
   return (
     <div className="mx-auto max-w-[480px] min-h-screen bg-surface relative overflow-x-hidden md:shadow-[0_20px_70px_-15px_rgb(43_36_33_/_0.35)] md:ring-1 md:ring-on-surface/5">

@@ -378,65 +378,74 @@ function MatchOverlay({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.25 }}
-      className="fixed inset-0 z-[60] bg-primary flex flex-col justify-center items-center px-margin-main text-center max-w-[480px] mx-auto overflow-hidden"
+      transition={{ duration: 0.3 }}
+      className="fixed inset-0 z-[60] bg-gradient-to-b from-primary/95 to-primary-container/95 backdrop-blur-md flex flex-col justify-center items-center px-margin-main text-center max-w-[480px] mx-auto overflow-hidden"
     >
       <ConfettiBurst />
+      
+      {/* Orqa fondagi nur / yorug'lik effektlari */}
       <motion.div
-        initial={{ scale: 0.6, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.1 }}
-        className="flex items-center justify-center mb-stack-lg relative"
+        initial={{ scale: 0.5, opacity: 0 }}
+        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-white/20 rounded-full blur-[60px] pointer-events-none"
+      />
+
+      <motion.div
+        initial={{ scale: 0.5, opacity: 0, rotate: -10 }}
+        animate={{ scale: 1, opacity: 1, rotate: 0 }}
+        transition={{ type: 'spring', stiffness: 220, damping: 20, delay: 0.1 }}
+        className="flex items-center justify-center mb-10 relative z-10"
       >
-        <div className="w-32 h-32 rounded-full border-4 border-primary bg-surface overflow-hidden -mr-4 shadow-2xl z-10">
+        <div className="w-36 h-36 rounded-full border-[6px] border-surface bg-surface overflow-hidden -mr-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)] z-10">
           {profile.photos[0] ? (
             <img src={photoUrl(profile.photos[0].url)} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full bg-surface-container flex items-center justify-center">
-              <Icon name="person" className="text-[48px] text-on-surface-variant" />
+              <Icon name="person" className="text-[56px] text-on-surface-variant" />
             </div>
           )}
         </div>
         <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 12, delay: 0.35 }}
-          className="w-32 h-32 rounded-full border-4 border-primary bg-surface-warm overflow-hidden -ml-4 shadow-2xl flex items-center justify-center"
+          initial={{ scale: 0, rotate: 45 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.35 }}
+          className="w-36 h-36 rounded-full border-[6px] border-surface bg-gradient-to-tr from-surface-warm to-surface overflow-hidden -ml-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)] flex items-center justify-center relative"
         >
-          <Icon name="favorite" fill className="text-primary text-[48px] heartbeat" />
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 mix-blend-overlay" />
+          <Icon name="favorite" fill className="text-primary text-[56px] drop-shadow-md heartbeat" />
         </motion.div>
       </motion.div>
-      <motion.h1
+
+      <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.25 }}
-        className="text-headline-lg font-headline-lg text-on-primary mb-stack-sm drop-shadow"
+        className="mb-12 z-10 relative"
       >
-        Bu birgalikda!
-      </motion.h1>
-      <motion.p
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.32 }}
-        className="text-body-lg font-body-lg text-on-primary/90 mb-12"
-      >
-        Siz va {profile.firstName} bir-biringizga yoqdingiz.
-      </motion.p>
+        <h1 className="text-[42px] leading-tight font-headline-lg font-bold text-white mb-2 drop-shadow-lg filter">
+          Bu birgalikda!
+        </h1>
+        <p className="text-[18px] font-body-lg text-white/90 px-4">
+          Siz va <span className="font-semibold text-white">{profile.firstName}</span> bir-biringizga yoqdingiz.
+        </p>
+      </motion.div>
+
       <motion.div
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="w-full flex flex-col gap-stack-sm"
+        className="w-full flex flex-col gap-4 z-10 px-4"
       >
         <button
           onClick={onChat}
-          className="w-full h-[56px] rounded-button bg-surface text-primary text-body-lg font-body-lg flex items-center justify-center gap-2 press shadow-lg"
+          className="w-full h-16 rounded-full bg-white text-primary text-[18px] font-bold flex items-center justify-center gap-3 press shadow-[0_10px_25px_rgba(0,0,0,0.2)]"
         >
-          <Icon name="chat_bubble" /> Xabar yozish
+          <Icon name="chat_bubble" fill className="text-[24px]" /> Xabar yozish
         </button>
         <button
           onClick={onContinue}
-          className="w-full h-[56px] rounded-button border border-on-primary/30 text-on-primary text-body-lg font-body-lg press"
+          className="w-full h-16 rounded-full border-2 border-white/40 text-white text-[18px] font-semibold press hover:bg-white/10 transition-colors"
         >
           Davom etish
         </button>

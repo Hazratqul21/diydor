@@ -144,6 +144,43 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
+  // ─────────────── Xabarga reaksiya (Like) ───────────────
+
+  @SubscribeMessage('likeMessage')
+  async handleLikeMessage(
+    @MessageBody() data: { messageId: string; matchId: string; liked: boolean },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const userId = client.data.userId;
+    if (!userId || !data.messageId || !data.matchId) return;
+
+    const message = await this.prisma.message.findUnique({
+      where: { id: data.messageId },
+      select: { senderId: true, matchId: true },
+    });
+
+    if (!message || message.matchId !== data.matchId) return;
+
+    // Like bosganda bazada yangilaymiz
+    await this.prisma.message.update({
+      where: { id: data.messageId },
+      data: { liked: data.liked },
+    });
+
+    // Match'dagi ikkala odamga ham xabar statusini yuboramiz
+    const match = await this.prisma.match.findUnique({
+      where: { id: data.matchId },
+      select: { userAId: true, userBId: true },
+    });
+    if (match) {
+      this.server.to(`user_${match.userAId}`).to(`user_${match.userBId}`).emit('messageLiked', {
+        messageId: data.messageId,
+        matchId: data.matchId,
+        liked: data.liked,
+      });
+    }
+  }
+
   // ─────────────── Public helpers ───────────────
 
   notifyNewMessage(recipientId: string, message: any) {

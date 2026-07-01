@@ -67,6 +67,7 @@ export interface Message {
   senderId: string;
   type: 'TEXT' | 'IMAGE' | 'VOICE' | 'GIFT' | 'SYSTEM';
   content: string;
+  liked?: boolean;
   readAt: string | null;
   createdAt: string;
 }
@@ -186,7 +187,6 @@ export const createCoinOrder = (packageId: string) =>
     { method: 'POST', body: JSON.stringify({ packageId }) },
   );
 
-/** DEV: to'lovsiz tanga kreditlash (faqat lokal test) */
 export const purchaseCoins = (packageId: string) =>
   apiFetch<{ coinBalance: number; added: number }>('/coins/purchase', {
     method: 'POST',
@@ -197,6 +197,10 @@ export const withdraw = (cardNumber: string, amount: number) =>
   apiFetch<{ walletBalance: number; status: string }>('/wallet/withdraw', {
     method: 'POST',
     body: JSON.stringify({ cardNumber, amount }),
+  });
+export const claimDailyBonus = () =>
+  apiFetch<{ success: boolean; bonusAmount: number; newBalance: number }>('/daily-bonus', {
+    method: 'POST',
   });
 
 // ── Obuna (subscription) ────────────────────────────────────

@@ -24,7 +24,7 @@ import {
   type Profile,
   type GiftItem,
 } from '@/lib/data';
-import { getSocket, emitTyping, emitMessageRead } from '@/lib/socket';
+import { getSocket, emitTyping, emitMessageRead, emitLikeMessage } from '@/lib/socket';
 import { clockTime } from '@/lib/time';
 
 // ── Icebreakers ─────────────────────────────────────────────
@@ -145,6 +145,7 @@ export default function Chat() {
   const [catalog, setCatalog] = useState<GiftItem[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
+  const [lastTap, setLastTap] = useState<{ id: string; time: number } | null>(null);
 
   const endRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -257,16 +258,29 @@ export default function Chat() {
       }
     };
 
+    // Xabarga reaksiya (like) haqida
+    const handleMessageLiked = (data: { messageId: string; matchId: string; liked: boolean }) => {
+      if (data.matchId === matchId) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === data.messageId ? { ...m, liked: data.liked } : m,
+          ),
+        );
+      }
+    };
+
     socket.on('newMessage', handleNewMessage);
     socket.on('userTyping', handleTyping);
     socket.on('messageRead', handleMessageRead);
     socket.on('messageDelivered', handleMessageDelivered);
+    socket.on('messageLiked', handleMessageLiked);
 
     return () => {
       socket.off('newMessage', handleNewMessage);
       socket.off('userTyping', handleTyping);
       socket.off('messageRead', handleMessageRead);
       socket.off('messageDelivered', handleMessageDelivered);
+      socket.off('messageLiked', handleMessageLiked);
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, [matchId, meId]);
@@ -492,6 +506,24 @@ export default function Chat() {
         {messages.map((m) => {
           const mine = m.senderId === meId;
 
+          const handleDoubleTap = () => {
+            const now = Date.now();
+            if (lastTap && lastTap.id === m.id && now - lastTap.time < 300) {
+              // Double tap detected!
+              if (!m.tempId && matchId) {
+                const newLikedStatus = !m.liked;
+                // Optimistic UI for like
+                setMessages((prev) =>
+                  prev.map((x) => (x.id === m.id ? { ...x, liked: newLikedStatus } : x))
+                );
+                emitLikeMessage(m.id, matchId, newLikedStatus);
+              }
+              setLastTap(null);
+            } else {
+              setLastTap({ id: m.id, time: now });
+            }
+          };
+
           // ── Rasm xabari ──
           if (m.type === 'IMAGE') {
             return (
@@ -613,7 +645,8 @@ export default function Chat() {
               }`}
             >
               <div
-                className={`px-4 py-3 rounded-2xl shadow-sm ${
+                onClick={handleDoubleTap}
+                className={`relative px-4 py-3 rounded-2xl shadow-sm cursor-pointer select-none ${
                   mine
                     ? 'bg-gradient-to-br from-primary-container to-primary text-on-primary rounded-br-[4px]'
                     : 'bg-surface-container text-on-surface rounded-bl-[4px]'
@@ -631,6 +664,21 @@ export default function Chat() {
                   <span className="text-[10px]">{clockTime(m.createdAt)}</span>
                   <MessageStatusIcon status={m.status} mine={mine} />
                 </div>
+                
+                {/* Like animatsiyasi */}
+                <AnimatePresence>
+                  {m.liked && (
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                      className={`absolute -bottom-2 -right-2 bg-surface rounded-full p-1 shadow-sm border border-surface-container-high ${mine ? 'text-primary' : 'text-error'}`}
+                    >
+                      <Icon name="favorite" fill className="text-[16px]" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Xatolik — Qayta yuborish tugmasi */}

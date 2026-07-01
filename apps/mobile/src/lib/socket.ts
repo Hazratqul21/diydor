@@ -125,6 +125,14 @@ export function emitMessageRead(messageId: string, matchId: string) {
   }
 }
 
+// ── Xabarga reaksiya (Like) yuborish ────────────────────────
+export function emitLikeMessage(messageId: string, matchId: string, liked: boolean) {
+  const s = getSocket();
+  if (s?.connected) {
+    s.emit('likeMessage', { messageId, matchId, liked });
+  }
+}
+
 // ── Socket'ni uzish ─────────────────────────────────────────
 export function disconnectSocket() {
   if (socket) {

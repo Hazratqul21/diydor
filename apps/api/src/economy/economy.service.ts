@@ -219,4 +219,37 @@ export class EconomyService {
     ]);
     return { walletBalance: updated.walletBalance, requested: amount, status: 'pending' };
   }
+
+  /**
+   * Kunlik bonus: har kuni birinchi marta kirganda +10 tanga
+   */
+  async claimDailyBonus(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { lastLoginAt: true, coinBalance: true },
+    });
+    if (!user) throw new NotFoundException('User topilmadi');
+
+    const now = new Date();
+    // Agar lastLoginAt yo'q bo'lsa yoki boshqa kunda bo'lsa, bonus beramiz
+    const isSameDay = user.lastLoginAt && 
+      user.lastLoginAt.getDate() === now.getDate() &&
+      user.lastLoginAt.getMonth() === now.getMonth() &&
+      user.lastLoginAt.getFullYear() === now.getFullYear();
+
+    if (!isSameDay) {
+      const updated = await this.prisma.user.update({
+        where: { id: userId },
+        data: { 
+          lastLoginAt: now,
+          coinBalance: { increment: 10 }
+        },
+        select: { coinBalance: true },
+      });
+      return { success: true, bonusAmount: 10, newBalance: updated.coinBalance };
+    }
+
+    // Agar allaqachon bugun kirgan bo'lsa, prosta lastLoginAt yangilaymiz (agar xohlasak)
+    return { success: false, bonusAmount: 0, newBalance: user.coinBalance };
+  }
 }

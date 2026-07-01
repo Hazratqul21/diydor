@@ -43,4 +43,9 @@ export class EconomyController {
   withdraw(@CurrentUser('id') userId: string, @Body() dto: WithdrawDto) {
     return this.economy.withdraw(userId, dto.cardNumber, dto.amount);
   }
+
+  @Post('daily-bonus')
+  claimDailyBonus(@CurrentUser('id') userId: string) {
+    return this.economy.claimDailyBonus(userId);
+  }
 }

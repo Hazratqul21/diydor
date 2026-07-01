@@ -137,7 +137,7 @@ export default function Messages() {
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ type: 'spring', stiffness: 500, damping: 18 }}
-                          className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-on-primary text-[11px] font-bold shrink-0"
+                          className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-on-primary text-[11px] font-bold shrink-0 shadow-sm shadow-primary/30"
                         >
                           {m.unread}
                         </motion.span>
@@ -178,17 +178,49 @@ function Avatar({ profile, className = '' }: { profile: { firstName: string; pho
 
 function Empty({ onGo }: { onGo: () => void }) {
   return (
-    <div className="flex flex-col items-center text-center gap-stack-md px-8 mt-32">
-      <div className="w-20 h-20 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
-        <Icon name="chat_bubble" className="text-[40px]" />
-      </div>
-      <h2 className="text-headline-md font-headline-md text-on-surface">Hali suhbat yo'q</h2>
-      <p className="text-body-md font-body-md text-on-surface-variant">
-        Birinchi match'ingizni toping va suhbatni boshlang.
-      </p>
-      <button onClick={onGo} className="mt-2 h-[48px] px-6 rounded-button bg-primary text-on-primary font-body-md press">
-        Svaypga qaytish
-      </button>
+    <div className="flex flex-col items-center text-center px-8 mt-24">
+      {/* Animatsion icon */}
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+        className="relative w-28 h-28 mb-8"
+      >
+        <div className="absolute inset-0 bg-primary/10 rounded-full animate-pulse" />
+        <div className="absolute inset-2 bg-primary/20 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+        <div className="absolute inset-4 bg-gradient-to-tr from-primary to-primary-container rounded-full flex items-center justify-center shadow-lg shadow-primary/20">
+          <Icon name="favorite" fill className="text-[40px] text-on-primary" />
+        </div>
+      </motion.div>
+
+      <motion.h2
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1 }}
+        className="text-headline-md font-headline-md text-on-surface mb-3"
+      >
+        Suhbatlaringiz shu yerda
+      </motion.h2>
+      
+      <motion.p
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="text-body-lg font-body-lg text-on-surface-variant max-w-[280px] mb-8"
+      >
+        O'z juftingizni toping va iliq suhbatlarni boshlang.
+      </motion.p>
+      
+      <motion.button
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        onClick={onGo}
+        className="h-14 px-8 rounded-full bg-gradient-to-r from-primary to-primary-container text-on-primary font-label-lg tracking-wide press shadow-lg shadow-primary/25 flex items-center gap-2"
+      >
+        <Icon name="explore" className="text-[20px]" />
+        Kashf qilish
+      </motion.button>
     </div>
   );
 }
