@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@/components/Icon';
 import { getCoinPackages, createCoinOrder, type CoinPackage } from '@/lib/data';
+import { openCheckout } from '@/lib/checkout';
 
 // Hozircha faqat Payme ishlaydi. Click/Stars integratsiyasi qo'shilgach kengaytiriladi.
 const METHODS = [
@@ -34,9 +35,11 @@ export default function CoinStore() {
       // Order yaratiladi -> Payme checkout sahifasiga yo'naltiriladi.
       // To'lovdan keyin Payme PerformTransaction chaqiradi va tanga qo'shiladi.
       const order = await createCoinOrder(selected);
-      window.location.href = order.checkoutUrl;
+      openCheckout(order.checkoutUrl);
+      setBusy(false);
     } catch {
       setBusy(false);
+      alert("To'lovni boshlashda xatolik. Birozdan so'ng qayta urinib ko'ring.");
     }
   }
 

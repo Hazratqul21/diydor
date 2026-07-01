@@ -11,6 +11,7 @@ import {
   type SubTier,
   type MySubscription,
 } from '@/lib/data';
+import { openCheckout } from '@/lib/checkout';
 
 const PERIOD_LABEL: Record<SubPeriod, string> = { WEEK: 'Hafta', MONTH: 'Oy', YEAR: 'Yil' };
 const PERIOD_ORDER: SubPeriod[] = ['WEEK', 'MONTH', 'YEAR'];
@@ -69,9 +70,11 @@ export default function Subscription() {
     setBusy(true);
     try {
       const order = await createSubscriptionOrder(selectedPlan.id);
-      window.location.href = order.checkoutUrl;
+      openCheckout(order.checkoutUrl);
+      setBusy(false);
     } catch {
       setBusy(false);
+      alert("To'lovni boshlashda xatolik. Birozdan so'ng qayta urinib ko'ring.");
     }
   }
 
