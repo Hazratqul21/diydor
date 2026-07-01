@@ -260,20 +260,33 @@ model Report {
 // Chatda yuborilgan virtual sovg'a yozuvi (sovg'a iqtisodiyoti yadrosi)
 
 model GiftTransaction {
-  id         String   @id @default(cuid())
-  fromUserId String
+  id         String   @id @default(uuid())
   fromUser   User     @relation("GiftsSent", fields: [fromUserId], references: [id], onDelete: Cascade)
-  toUserId   String
-  toUser     User     @relation("GiftsReceived", fields: [toUserId], references: [id], onDelete: Cascade)
-  matchId    String?
-  giftKey    String // katalog kaliti (rose, tulip, ...)
-  coinAmount Int // jo'natuvchidan yechilgan tanga
-  earnedSom  Int      @default(0) // oluvchi hamyoniga kreditlangan so'm
-  createdAt  DateTime @default(now())
+  fromUserId String
+  toUser    User     @relation("GiftsReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+  toUserId  String
+  matchId   String?
+  giftKey   String   // 'rose', 'car', etc. (referenced from GiftItem)
+  coinAmount Int     // Qancha tangaga olingani (yuborilgan vaqtdagi narxi)
+  earnedSom  Int     // Oluvchiga qancha pul tushgani
+  createdAt DateTime @default(now())
 
   @@index([toUserId])
   @@index([fromUserId])
   @@map("gift_transactions")
+}
+
+model GiftItem {
+  id          String   @id @default(uuid())
+  key         String   @unique // 'rose', 'ring'
+  name        String   // 'Atirgul', 'Uzuk'
+  imageUrl    String   // '/gifts/rose.jpg'
+  priceCoins  Int      // Yuboruvchidan olinadigan tanga
+  cashoutSom  Int      // Oluvchining hamyoniga tushadigan summa (so'm)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // ─────────────────────────── Order / Payme ─────────────────────

@@ -18,10 +18,11 @@ import {
   getMessages,
   sendMessage,
   sendChatImage,
+  getGiftCatalog,
   photoUrl,
-  GIFT_EMOJI,
   type Message,
   type Profile,
+  type GiftItem,
 } from '@/lib/data';
 import { getSocket, emitTyping, emitMessageRead } from '@/lib/socket';
 import { clockTime } from '@/lib/time';
@@ -141,6 +142,7 @@ export default function Chat() {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [online, setOnline] = useState(false);
+  const [catalog, setCatalog] = useState<GiftItem[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
 
@@ -176,6 +178,7 @@ export default function Chat() {
   async function load() {
     if (!matchId) return;
     try {
+      getGiftCatalog().then(setCatalog).catch(() => undefined);
       const data = await getMessages(matchId);
       setUser(data.user);
       setOnline(!!data.online);
@@ -521,6 +524,7 @@ export default function Chat() {
 
           // ── Sovg'a xabari ──
           if (m.type === 'GIFT') {
+            const giftInfo = catalog.find((g) => g.key === m.content);
             return (
               <motion.div
                 key={m.id}
@@ -531,8 +535,16 @@ export default function Chat() {
                   mine ? 'self-end items-end' : 'self-start items-start'
                 }`}
               >
-                <div className="text-[64px] leading-none animate-bounce">
-                  {GIFT_EMOJI[m.content] ?? '🎁'}
+                <div className="animate-bounce">
+                  {giftInfo ? (
+                    <img
+                      src={photoUrl(giftInfo.imageUrl)}
+                      alt={giftInfo.name}
+                      className="w-24 h-24 object-contain drop-shadow-lg"
+                    />
+                  ) : (
+                    <div className="text-[64px] leading-none">🎁</div>
+                  )}
                 </div>
                 <span className="text-label-sm font-label-sm text-on-surface-variant mt-1">
                   {mine ? "Siz sovg'a yubordingiz" : "Sizga sovg'a yubordi"} ·{' '}

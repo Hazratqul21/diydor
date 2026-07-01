@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { animate, motion } from 'framer-motion';
 import { Icon } from '@/components/Icon';
-import { getWallet, photoUrl, GIFT_EMOJI, type WalletData } from '@/lib/data';
+import { getWallet, getGiftCatalog, photoUrl, type WalletData, type GiftItem } from '@/lib/data';
 import { shortTime } from '@/lib/time';
 
 function fmt(n: number) {
@@ -26,9 +26,11 @@ function CountUp({ value }: { value: number }) {
 export default function Wallet() {
   const nav = useNavigate();
   const [w, setW] = useState<WalletData | null>(null);
+  const [catalog, setCatalog] = useState<GiftItem[]>([]);
 
   useEffect(() => {
     getWallet().then(setW).catch(() => undefined);
+    getGiftCatalog().then(setCatalog).catch(() => undefined);
   }, []);
 
   return (
@@ -101,7 +103,14 @@ export default function Wallet() {
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="text-body-md font-body-md font-bold text-primary">+{fmt(g.earnedSom)} so'm</span>
-                    <span className="text-[20px]">{GIFT_EMOJI[g.giftKey] ?? '🎁'}</span>
+                    {(() => {
+                      const giftInfo = catalog.find((c) => c.key === g.giftKey);
+                      return giftInfo ? (
+                        <img src={photoUrl(giftInfo.imageUrl)} alt={giftInfo.name} className="w-8 h-8 object-contain mt-1" />
+                      ) : (
+                        <span className="text-[20px] mt-1">🎁</span>
+                      );
+                    })()}
                   </div>
                 </motion.div>
               ))}

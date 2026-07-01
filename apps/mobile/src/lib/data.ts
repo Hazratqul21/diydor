@@ -142,12 +142,14 @@ export const sendChatImage = (matchId: string, dataUrl: string) =>
 
 // ── Economy (sovg'a / tanga / hamyon) ───────────────────────
 export interface GiftItem {
+  id: string;
   key: string;
   name: string;
-  icon: string;
-  emoji: string;
-  coinPrice: number;
-  premium?: boolean;
+  imageUrl: string;
+  priceCoins: number;
+  cashoutSom: number;
+  isActive: boolean;
+  sortOrder: number;
 }
 export interface CoinPackage {
   id: string;
@@ -226,11 +228,4 @@ export const createSubscriptionOrder = (planId: string) =>
     { method: 'POST', body: JSON.stringify({ planId }) },
   );
 
-export const GIFT_EMOJI: Record<string, string> = {
-  rose: '🌹',
-  heart: '❤️',
-  tulip: '🌷',
-  chocolate: '🍫',
-  teddy: '🧸',
-  ring: '💍',
-};
+

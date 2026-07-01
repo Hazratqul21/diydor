@@ -5,12 +5,7 @@ import { PaymeService } from '../payments/payme.service';
 import { AppSettingsService } from '../common/settings/app-settings.service';
 import { ChatGateway } from '../matches/chat.gateway';
 import { TelegramNotifyService } from '../notifications/telegram-notify.service';
-import {
-  COIN_PACKAGES,
-  findGift,
-  findPackage,
-  GIFT_CATALOG,
-} from './economy.constants';
+import { COIN_PACKAGES, findPackage } from './economy.constants';
 
 @Injectable()
 export class EconomyService {
@@ -55,8 +50,11 @@ export class EconomyService {
     };
   }
 
-  getGiftCatalog() {
-    return GIFT_CATALOG;
+  async getGiftCatalog() {
+    return this.prisma.giftItem.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: 'asc' },
+    });
   }
 
   getCoinPackages() {
@@ -103,8 +101,9 @@ export class EconomyService {
    *   so'miga aylanadi — bepul/promo tanga real pul yaratmaydi (teshik yopiq).
    */
   async sendGift(senderId: string, matchId: string, giftKey: string) {
-    const gift = findGift(giftKey);
+    const gift = await this.prisma.giftItem.findUnique({ where: { key: giftKey } });
     if (!gift) throw new BadRequestException('Sovg\'a topilmadi');
+    if (!gift.isActive) throw new BadRequestException('Sovg\'a hozirda faol emas');
 
     const match = await this.prisma.match.findUnique({ where: { id: matchId } });
     if (!match) throw new NotFoundException('Match topilmadi');
@@ -113,26 +112,24 @@ export class EconomyService {
     }
     const receiverId = match.userAId === senderId ? match.userBId : match.userAId;
 
-    const cfg = await this.settings.get();
-
     const { message, coinBalance } = await this.prisma.$transaction(async (tx) => {
       const sender = await tx.user.findUnique({
         where: { id: senderId },
-        select: { coinBalance: true, paidCoinBalance: true },
+        select: { coinBalance: true },
       });
-      if (!sender || sender.coinBalance < gift.coinPrice) {
+      if (!sender || sender.coinBalance < gift.priceCoins) {
         throw new BadRequestException('Tanga yetarli emas');
       }
-      // Sotib olingan tangani birinchi sarflaymiz — faqat shu ulush so'mga aylanadi
-      const paidUsed = Math.min(gift.coinPrice, sender.paidCoinBalance);
-      const earnedSom = Math.round(paidUsed * cfg.coinToSom * (cfg.receiverSharePercent / 100));
+
+      // Yangi mantiq: Har qanday tangadan (bepul/pullik) qat'i nazar
+      // belgilangan cashoutSom miqdorida pul tushadi. Komissiya narxda ushlanib qoladi.
+      const earnedSom = gift.cashoutSom;
 
       // Shartli decrement — bir vaqtli sovg'alarda balans manfiyga tushmaydi
       const dec = await tx.user.updateMany({
-        where: { id: senderId, coinBalance: { gte: gift.coinPrice } },
+        where: { id: senderId, coinBalance: { gte: gift.priceCoins } },
         data: {
-          coinBalance: { decrement: gift.coinPrice },
-          paidCoinBalance: { decrement: paidUsed },
+          coinBalance: { decrement: gift.priceCoins },
         },
       });
       if (dec.count !== 1) throw new BadRequestException('Tanga yetarli emas');
@@ -144,7 +141,7 @@ export class EconomyService {
         });
       }
       await tx.giftTransaction.create({
-        data: { fromUserId: senderId, toUserId: receiverId, matchId, giftKey, coinAmount: gift.coinPrice, earnedSom },
+        data: { fromUserId: senderId, toUserId: receiverId, matchId, giftKey, coinAmount: gift.priceCoins, earnedSom },
       });
       const message = await tx.message.create({
         data: { matchId, senderId, type: 'GIFT', content: giftKey },

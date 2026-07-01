@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Icon } from '@/components/Icon';
-import { getGiftCatalog, getWallet, sendGift, type GiftItem } from '@/lib/data';
+import { getGiftCatalog, getWallet, sendGift, type GiftItem, photoUrl } from '@/lib/data';
 
 export default function GiftStore() {
   const { matchId } = useParams();
@@ -18,7 +18,7 @@ export default function GiftStore() {
 
   async function send(gift: GiftItem) {
     if (!matchId || sending) return;
-    if (balance < gift.coinPrice) {
+    if (balance < gift.priceCoins) {
       nav('/coins');
       return;
     }
@@ -68,17 +68,20 @@ export default function GiftStore() {
         <div className="grid grid-cols-2 gap-gutter">
           {catalog.map((g) => (
             <div key={g.key} className="rounded-[20px] p-stack-md flex flex-col items-center text-center bg-surface-warm shadow-ambient relative">
-              {g.premium && (
+              {g.priceCoins >= 100 && (
                 <div className="absolute -top-2 -right-2 bg-tertiary-container text-on-tertiary-container text-[10px] font-bold px-2 py-1 rounded-full rotate-12">
                   PREMIUM
                 </div>
               )}
-              <div className="w-20 h-20 mb-stack-sm rounded-full bg-surface-subtle flex items-center justify-center text-[40px]">
-                {g.emoji}
+              <div className="w-20 h-20 mb-stack-sm rounded-full bg-surface-subtle flex items-center justify-center">
+                <img src={photoUrl(g.imageUrl)} alt={g.name} className="w-16 h-16 object-contain drop-shadow-md" />
               </div>
               <h3 className="text-body-lg font-body-lg font-semibold text-on-surface mb-1">{g.name}</h3>
-              <p className="text-label-sm font-label-sm text-secondary mb-stack-md flex items-center gap-1">
-                <Icon name="monetization_on" fill className="text-[14px] text-primary" /> {g.coinPrice}
+              <p className="text-label-sm font-label-sm text-secondary flex items-center justify-center gap-1">
+                <Icon name="monetization_on" fill className="text-[14px] text-primary" /> {g.priceCoins}
+              </p>
+              <p className="text-[10px] text-tertiary mb-stack-md text-center">
+                Oluvchiga: {g.cashoutSom.toLocaleString()} so'm
               </p>
               <button
                 onClick={() => send(g)}
@@ -96,8 +99,8 @@ export default function GiftStore() {
       {sent && (
         <div className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center max-w-[480px] mx-auto">
           <div className="bg-surface rounded-[28px] p-8 flex flex-col items-center spring-in">
-            <div className="text-[64px] mb-2 animate-bounce">{sent.emoji}</div>
-            <p className="text-headline-md font-headline-md text-on-surface">{sent.name} yuborildi!</p>
+            <img src={photoUrl(sent.imageUrl)} alt={sent.name} className="w-24 h-24 object-contain mb-4 animate-bounce" />
+            <p className="text-headline-md font-headline-md text-on-surface text-center">{sent.name} yuborildi!</p>
           </div>
         </div>
       )}
