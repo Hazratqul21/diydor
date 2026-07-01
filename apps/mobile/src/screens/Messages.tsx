@@ -158,12 +158,19 @@ export default function Messages() {
 
 function Avatar({ profile, className = '' }: { profile: { firstName: string; photos: { url: string }[] }; className?: string }) {
   const p = profile.photos[0];
+  const [failed, setFailed] = useState(false);
+  const initial = (profile.firstName?.trim()?.[0] ?? '?').toUpperCase();
   return (
-    <div className={`rounded-full overflow-hidden bg-surface-container flex items-center justify-center ${className}`}>
-      {p ? (
-        <img src={photoUrl(p.url)} alt={profile.firstName} className="w-full h-full object-cover" />
+    <div className={`rounded-full overflow-hidden bg-primary/15 flex items-center justify-center ${className}`}>
+      {p && !failed ? (
+        <img
+          src={photoUrl(p.url)}
+          alt={profile.firstName}
+          className="w-full h-full object-cover"
+          onError={() => setFailed(true)}
+        />
       ) : (
-        <Icon name="person" className="text-[28px] text-on-surface-variant" />
+        <span className="font-title-md text-primary select-none">{initial}</span>
       )}
     </div>
   );

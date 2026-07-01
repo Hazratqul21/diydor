@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Icon } from '@/components/Icon';
+import { Avatar } from '@/components/Avatar';
 import { UserActionsSheet } from '@/components/UserActionsSheet';
 
 // Xabar bubble kirish animatsiyasi
@@ -123,15 +124,7 @@ export default function Chat() {
           )}
         </div>
         <div className="flex items-center gap-1 -mr-1">
-          <div className="w-9 h-9 rounded-full overflow-hidden bg-surface-container">
-            {user?.photos[0] ? (
-              <img src={photoUrl(user.photos[0].url)} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Icon name="person" className="text-on-surface-variant" />
-              </div>
-            )}
-          </div>
+          <Avatar url={user?.photos[0]?.url} name={user?.firstName} className="w-9 h-9" />
           <button onClick={() => setMenuOpen(true)} aria-label="Boshqa" className="w-9 h-9 flex items-center justify-center text-on-surface press">
             <Icon name="more_vert" />
           </button>
