@@ -297,6 +297,25 @@ body {
   animation: kenBurns 12s ease-out forwards;
 }
 
+/* Selfie oval — yuz skaneri chizig'i (yuqoridan pastga aylanma harakat) */
+@keyframes scanline {
+  0% {
+    top: 4%;
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 96%;
+    opacity: 0.2;
+  }
+}
+.scanline {
+  top: 4%;
+  animation: scanline 2.4s ease-in-out infinite;
+}
+
 /* Tugma bosish (faol holat) */
 .press {
   transition:

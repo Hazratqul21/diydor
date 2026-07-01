@@ -20,6 +20,7 @@ import {
 } from '@/lib/data';
 import { ApiError } from '@/lib/api';
 import { useScrollLock } from '@/lib/useScrollLock';
+import { hapticLight, hapticMedium, hapticHeavy, hapticSuccess, hapticWarning } from '@/lib/tma';
 
 const INTEREST_ICON: Record<string, string> = {
   Qahva: 'coffee',
@@ -69,11 +70,21 @@ export default function Discover() {
     if (!current) return;
     const target = current.id;
     setIdx((i) => i + 1); // optimistik: keyingi kartaga
+
+    // Haptic feedback — svayp turiga qarab titrash
+    if (action === 'LIKE') hapticMedium();
+    else if (action === 'SUPERLIKE') hapticHeavy();
+    else hapticLight();
+
     try {
       const res = await swipe(target, action);
-      if (res.match) setMatch(res);
+      if (res.match) {
+        hapticSuccess(); // Match bo'lsa kuchli muvaffaqiyat titrashi
+        setMatch(res);
+      }
     } catch (e) {
       if (e instanceof ApiError && (e.code === 'SWIPE_LIMIT' || e.code === 'SUPERLIKE_LIMIT')) {
+        hapticWarning(); // Limit tugaganda ogohlantirish titrashi
         setIdx((i) => i - 1); // kartani qaytaramiz
         setPaywall({
           title: e.code === 'SUPERLIKE_LIMIT' ? 'SuperLike tugadi' : 'Kunlik limit tugadi',

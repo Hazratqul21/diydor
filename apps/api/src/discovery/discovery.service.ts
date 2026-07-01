@@ -63,18 +63,41 @@ export class DiscoveryService {
         photos: { where: { moderationStatus: 'APPROVED' }, orderBy: { order: 'asc' } },
         prompts: { orderBy: { order: 'asc' } },
       },
-      take: Math.max(limit * 3, 30),
+      take: Math.max(limit * 5, 50),
       orderBy: { lastActiveAt: 'desc' },
     });
 
-    // Premium prioritet ("Profilingiz yuqorida"): yuqori tier obunachilar
-    // navbatda oldinroq, keyin so'nggi faollik bo'yicha.
+    // ─── Ko'p omilli tartiblash ───
+    const now = Date.now();
+    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+    const hasMyLocation = me.latitude != null && me.longitude != null;
+
     return pool
-      .sort(
-        (a, b) =>
-          TIER_RANK[effectiveTier(b)] - TIER_RANK[effectiveTier(a)] ||
-          b.lastActiveAt.getTime() - a.lastActiveAt.getTime(),
-      )
+      .sort((a, b) => {
+        // 1. Premium prioritet: yuqori tier obunachilar navbatda oldinroq
+        const tierDiff = TIER_RANK[effectiveTier(b)] - TIER_RANK[effectiveTier(a)];
+        if (tierDiff !== 0) return tierDiff;
+
+        // 2. So'nggi 7 kun ichida aktiv bo'lganlar birinchi
+        const aRecent = now - a.lastActiveAt.getTime() <= SEVEN_DAYS_MS;
+        const bRecent = now - b.lastActiveAt.getTime() <= SEVEN_DAYS_MS;
+        if (aRecent !== bRecent) return aRecent ? -1 : 1;
+
+        // 3. ELO reyting bo'yicha kamayish tartibida
+        const eloDiff = (b as any).eloScore - (a as any).eloScore;
+        if (eloDiff !== 0) return eloDiff;
+
+        // 4. Masofa bo'yicha eng yaqinlarini ustunroq qilish (Haversine)
+        if (hasMyLocation && a.latitude != null && b.latitude != null) {
+          const distA = haversineKm(me.latitude!, me.longitude!, a.latitude, a.longitude!);
+          const distB = haversineKm(me.latitude!, me.longitude!, b.latitude, b.longitude!);
+          const distDiff = distA - distB;
+          if (Math.abs(distDiff) > 0.5) return distDiff; // 500m dan katta farq bo'lsa
+        }
+
+        // 5. So'nggi faollik bo'yicha (fallback)
+        return b.lastActiveAt.getTime() - a.lastActiveAt.getTime();
+      })
       .slice(0, limit)
       .map(serializeUser);
   }
@@ -257,4 +280,25 @@ export class DiscoveryService {
       }
     }
   }
+}
+
+// ─── Haversine formulasi: ikki nuqta orasidagi masofa (km) ───
+
+function haversineKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number {
+  const R = 6371; // Yer radiusi (km)
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }

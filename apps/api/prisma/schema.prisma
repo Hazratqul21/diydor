@@ -60,6 +60,12 @@ enum MessageType {
   SYSTEM // match ochilganda tizim xabari va h.k.
 }
 
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+}
+
 // ─────────────────────────── User ──────────────────────────────
 
 model User {
@@ -85,6 +91,7 @@ model User {
   isVerified     Boolean        @default(false) // selfie verifikatsiyadan o'tganmi
   isBanned       Boolean        @default(false)
   trustScore     Int            @default(0) // 0-100, fon tizimi hisoblaydi
+  eloScore       Int            @default(1000) // svayp reytingi (ELO)
   notifyShowSender Boolean      @default(false) // Telegram push'da yuboruvchi ismi ko'rinsinmi (standart: yashirin)
   lastActiveAt   DateTime       @default(now())
 
@@ -207,10 +214,12 @@ model Message {
   match     Match       @relation(fields: [matchId], references: [id], onDelete: Cascade)
   senderId  String
   sender    User        @relation("MessagesSent", fields: [senderId], references: [id], onDelete: Cascade)
-  type      MessageType @default(TEXT)
-  content   String // matn yoki ovoz fayl URL'i
-  readAt    DateTime?
-  createdAt DateTime    @default(now())
+  type        MessageType    @default(TEXT)
+  content     String // matn yoki ovoz fayl URL'i
+  status      MessageStatus  @default(SENT)
+  deliveredAt DateTime?
+  readAt      DateTime?
+  createdAt   DateTime       @default(now())
 
   @@index([matchId, createdAt])
   @@map("messages")

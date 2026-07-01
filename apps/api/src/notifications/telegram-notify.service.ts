@@ -3,8 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
- * Telegram bot orqali push-bildirishnoma yuboradi (ilova yopiq bo'lganda
- * re-engagement uchun). Faqat telegramId mavjud foydalanuvchilarga.
+ * Telegram bot integratsiyasi:
+ *  • push-bildirishnoma (ilova yopiq bo'lganda re-engagement uchun)
+ *  • kiruvchi update'lar (webhook) — /start ga xush kelibsiz + mini-app tugmasi
+ * Faqat telegramId mavjud foydalanuvchilarga (va bot token sozlangan bo'lsa).
  */
 @Injectable()
 export class TelegramNotifyService {
@@ -21,6 +23,18 @@ export class TelegramNotifyService {
 
   private get appUrl(): string {
     return this.config.get<string>('APP_PUBLIC_URL') ?? 'https://diydorapp.uz';
+  }
+
+  /** Webhook so'rovini tekshirish uchun maxfiy kalit (X-Telegram-Bot-Api-Secret-Token). */
+  get webhookSecret(): string {
+    return this.config.get<string>('TELEGRAM_WEBHOOK_SECRET') ?? '';
+  }
+
+  /** Mini-app'ni Telegram ichida ochadigan tugma (auto-login initData bilan). */
+  private appButton() {
+    return {
+      inline_keyboard: [[{ text: '💫 Diydorni ochish', web_app: { url: this.appUrl } }]],
+    };
   }
 
   /** userId bo'yicha telegramId topib, Telegram xabar yuboradi (bo'lmasa jim o'tadi). */
@@ -48,8 +62,7 @@ export class TelegramNotifyService {
           text,
           parse_mode: 'HTML',
           disable_web_page_preview: true,
-          // url-tugma har doim yaroqli (web_app domeni sozlanmagan bo'lsa ham buzilmaydi)
-          reply_markup: { inline_keyboard: [[{ text: '💬 Diydorni ochish', url: this.appUrl }]] },
+          reply_markup: this.appButton(),
         }),
       });
       if (!res.ok) {
@@ -59,4 +72,54 @@ export class TelegramNotifyService {
       this.logger.warn(`Telegram yuborish xato: ${(e as Error).message}`);
     }
   }
+
+  // ─────────── Webhook (kiruvchi update'lar) ───────────
+
+  /** Telegram webhook update'ini qayta ishlaydi (/start -> xush kelibsiz). */
+  async handleUpdate(update: any): Promise<void> {
+    try {
+      const msg = update?.message;
+      const text: string = msg?.text ?? '';
+      const chatId = msg?.chat?.id;
+      if (!chatId) return;
+
+      // /start yoki har qanday birinchi murojaat -> xush kelibsiz + mini-app tugmasi
+      if (text.startsWith('/start') || text === '') {
+        await this.sendWelcome(chatId, msg?.from?.first_name);
+      }
+    } catch (e) {
+      this.logger.warn(`handleUpdate xato: ${(e as Error).message}`);
+    }
+  }
+
+  private async sendWelcome(chatId: number | string, firstName?: string): Promise<void> {
+    if (!this.token) return;
+    const name = firstName ? `, <b>${escapeHtml(firstName)}</b>` : '';
+    const text =
+      `💛 <b>Diydor</b>ga xush kelibsiz${name}!\n\n` +
+      `Qalblar uchrashadigan joy — tanishing, suhbatlashing va yaqin insoningizni toping.\n\n` +
+      `Boshlash uchun pastdagi tugmani bosing 👇`;
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${this.token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+          parse_mode: 'HTML',
+          reply_markup: this.appButton(),
+        }),
+      });
+      if (!res.ok) {
+        this.logger.warn(`sendWelcome status ${res.status}: ${await res.text().catch(() => '')}`);
+      }
+    } catch (e) {
+      this.logger.warn(`sendWelcome xato: ${(e as Error).message}`);
+    }
+  }
+}
+
+/** Telegram HTML parse_mode uchun minimal escaping. */
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

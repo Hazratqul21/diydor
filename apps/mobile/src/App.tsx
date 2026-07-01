@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Welcome from './screens/Welcome';
 import Gender from './screens/onboarding/Gender';
@@ -22,12 +23,25 @@ import EditProfile from './screens/EditProfile';
 import Subscription from './screens/Subscription';
 import LegalPage from './screens/legal/LegalPage';
 import { OfflineBanner } from './components/OfflineBanner';
+import { tmaReady, lockTmaScroll, isTMA } from './lib/tma';
+import { ensureSocketConnection } from './lib/socket';
 
 /**
  * Diydor ilova. Desktopda telefon-freym (max-w-480) ko'rinadi,
  * mobilda butun ekran. Real qurilmada Capacitor bilan o'raladi.
+ * Telegram Mini App (TMA) ichida ochilganda nativ integratsiya ishlaydi.
  */
 export default function App() {
+  // ── Ilova yuklanishida TMA va socketni sozlash ──
+  useEffect(() => {
+    // Telegram Mini App ichida bo'lsa, nativ sozlamalarni yoqish
+    if (isTMA()) {
+      tmaReady();
+      lockTmaScroll();
+    }
+    // WebSocket ulanishni tiklash
+    ensureSocketConnection();
+  }, []);
   return (
     <div className="mx-auto max-w-[480px] min-h-screen bg-surface relative overflow-x-hidden md:shadow-[0_20px_70px_-15px_rgb(43_36_33_/_0.35)] md:ring-1 md:ring-on-surface/5">
       <OfflineBanner />

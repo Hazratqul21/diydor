@@ -1,36 +1,155 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@/components/Icon';
 import { Avatar } from '@/components/Avatar';
 import { UserActionsSheet } from '@/components/UserActionsSheet';
+import { AudioRecorder, AudioWaveform } from '@/components/AudioRecorder';
 
-// Xabar bubble kirish animatsiyasi
+// ── Xabar bubble kirish animatsiyasi ────────────────────────
 const bubbleIn = (mine: boolean) => ({
   initial: { opacity: 0, y: 10, x: mine ? 14 : -14, scale: 0.96 },
   animate: { opacity: 1, y: 0, x: 0, scale: 1 },
   transition: { type: 'spring' as const, stiffness: 380, damping: 26 },
 });
+
 import { getUserId } from '@/lib/api';
-import { getMessages, sendMessage, sendChatImage, photoUrl, GIFT_EMOJI, type Message, type Profile } from '@/lib/data';
-import { getSocket } from '@/lib/socket';
+import {
+  getMessages,
+  sendMessage,
+  sendChatImage,
+  photoUrl,
+  GIFT_EMOJI,
+  type Message,
+  type Profile,
+} from '@/lib/data';
+import { getSocket, emitTyping, emitMessageRead } from '@/lib/socket';
 import { clockTime } from '@/lib/time';
 
-const ICEBREAKERS = ['Salom! Qalaysiz? 👋', 'Qaysi joylarga borishni yoqtirasiz?', 'Bugun kayfiyat qanday?'];
+// ── Icebreakers ─────────────────────────────────────────────
+const ICEBREAKERS = [
+  'Salom! Qalaysiz? 👋',
+  'Qaysi joylarga borishni yoqtirasiz?',
+  'Bugun kayfiyat qanday?',
+];
 
+// ── Xabar yuborish holati turlari ───────────────────────────
+type MessageStatus = 'SENDING' | 'SENT' | 'DELIVERED' | 'READ' | 'FAILED';
+
+// ── Kengaytirilgan xabar turi (optimistic UI uchun) ────────
+interface ExtendedMessage extends Message {
+  /** Optimistic UI: vaqtinchalik ID */
+  tempId?: string;
+  /** Xabar holati: yuborilmoqda / yuborildi / yetkazildi / o'qildi / xatolik */
+  status?: MessageStatus;
+  /** Ovozli xabar davomiyligi (soniyada) */
+  audioDuration?: number;
+}
+
+// ── Typing indikator komponenti (3 nuqtali bouncing dots) ──
+function TypingIndicator() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 8 }}
+      className="self-start flex items-center gap-1.5 px-4 py-3 rounded-2xl rounded-bl-[4px] bg-surface-container shadow-sm max-w-[80px]"
+    >
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="w-2 h-2 rounded-full bg-on-surface-variant/50"
+          animate={{ y: [0, -6, 0] }}
+          transition={{
+            repeat: Infinity,
+            duration: 0.8,
+            delay: i * 0.15,
+            ease: 'easeInOut',
+          }}
+        />
+      ))}
+    </motion.div>
+  );
+}
+
+// ── Read receipt ptichkalar komponenti ──────────────────────
+function MessageStatusIcon({
+  status,
+  mine,
+}: {
+  status?: MessageStatus;
+  mine: boolean;
+}) {
+  if (!mine || !status) return null;
+
+  // Yuborilmoqda — soat ikonkasi
+  if (status === 'SENDING') {
+    return (
+      <span className="inline-flex items-center ml-1 text-on-primary/50">
+        <Icon name="schedule" className="text-[12px]" />
+      </span>
+    );
+  }
+
+  // Xatolik — qizil ogoh
+  if (status === 'FAILED') {
+    return (
+      <span className="inline-flex items-center ml-1 text-error">
+        <Icon name="error" className="text-[12px]" />
+      </span>
+    );
+  }
+
+  // SENT — bitta ptichka
+  if (status === 'SENT') {
+    return (
+      <span className="inline-flex items-center ml-1 text-on-primary/60">
+        <span className="text-[11px]">✓</span>
+      </span>
+    );
+  }
+
+  // DELIVERED — ikkita kulrang ptichka
+  if (status === 'DELIVERED') {
+    return (
+      <span className="inline-flex items-center ml-1 text-on-primary/60">
+        <span className="text-[11px]">✓✓</span>
+      </span>
+    );
+  }
+
+  // READ — ikkita ko'k ptichka
+  if (status === 'READ') {
+    return (
+      <span className="inline-flex items-center ml-1 text-sky-300">
+        <span className="text-[11px] font-bold">✓✓</span>
+      </span>
+    );
+  }
+
+  return null;
+}
+
+// ── Asosiy Chat komponenti ──────────────────────────────────
 export default function Chat() {
   const { id: matchId } = useParams();
   const nav = useNavigate();
   const meId = getUserId();
+
   const [user, setUser] = useState<Profile | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ExtendedMessage[]>([]);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [online, setOnline] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isPartnerTyping, setIsPartnerTyping] = useState(false);
+
   const endRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const lastTypingEmitRef = useRef(0);
 
+  // ── Rasm tanlash va yuborish ──────────────────────────────
   async function pickImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = '';
@@ -53,79 +172,292 @@ export default function Chat() {
     }
   }
 
+  // ── Xabarlarni serverdan yuklash ──────────────────────────
   async function load() {
     if (!matchId) return;
     try {
       const data = await getMessages(matchId);
       setUser(data.user);
       setOnline(!!data.online);
-      setMessages(data.messages);
+      // Mavjud xabarlarni status bilan belgilash
+      const enriched: ExtendedMessage[] = data.messages.map((m) => ({
+        ...m,
+        status: m.readAt ? 'READ' : ('DELIVERED' as MessageStatus),
+      }));
+      setMessages(enriched);
     } catch {
       /* ignore */
     }
   }
 
+  // ── Socket eventlarini eshitish ───────────────────────────
   useEffect(() => {
     load();
-    
+
     const socket = getSocket();
     if (!socket) return;
-    
+
+    // Yangi xabar kelganda
     const handleNewMessage = (msg: Message) => {
       if (msg.matchId === matchId) {
         setMessages((prev) => {
-          if (prev.some(m => m.id === msg.id)) return prev;
-          return [...prev, msg];
+          if (prev.some((m) => m.id === msg.id)) return prev;
+          return [...prev, { ...msg, status: 'DELIVERED' as MessageStatus }];
         });
+
+        // Kelgan xabarni o'qilgan deb belgilash (biz chatda turibmiz)
+        if (msg.senderId !== meId) {
+          emitMessageRead(msg.id, matchId!);
+        }
       }
     };
-    
+
+    // Boshqa foydalanuvchi yozyotganida
+    const handleTyping = (data: { matchId: string; userId: string; isTyping: boolean }) => {
+      if (data.matchId === matchId && data.userId !== meId) {
+        setIsPartnerTyping(data.isTyping);
+
+        // 3 sekunddan keyin typing holatini avtomatik o'chirish
+        // (agar stop eventi kelmasa)
+        if (data.isTyping) {
+          if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+          typingTimeoutRef.current = setTimeout(() => {
+            setIsPartnerTyping(false);
+          }, 3000);
+        }
+      }
+    };
+
+    // Xabar o'qilganligi haqida xabar (read receipt)
+    const handleMessageRead = (data: { messageId: string; matchId: string; readAt: string }) => {
+      if (data.matchId === matchId) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === data.messageId || (m.senderId === meId && !m.readAt)
+              ? { ...m, status: 'READ' as MessageStatus, readAt: data.readAt }
+              : m,
+          ),
+        );
+      }
+    };
+
+    // Xabar yetkazilganligi haqida xabar
+    const handleMessageDelivered = (data: { messageId: string; matchId: string }) => {
+      if (data.matchId === matchId) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === data.messageId && m.status === 'SENT'
+              ? { ...m, status: 'DELIVERED' as MessageStatus }
+              : m,
+          ),
+        );
+      }
+    };
+
     socket.on('newMessage', handleNewMessage);
-    
+    socket.on('userTyping', handleTyping);
+    socket.on('messageRead', handleMessageRead);
+    socket.on('messageDelivered', handleMessageDelivered);
+
     return () => {
       socket.off('newMessage', handleNewMessage);
+      socket.off('userTyping', handleTyping);
+      socket.off('messageRead', handleMessageRead);
+      socket.off('messageDelivered', handleMessageDelivered);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
-  }, [matchId]);
+  }, [matchId, meId]);
 
+  // ── Yangi xabar kelganda scroll pastga ────────────────────
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length]);
+  }, [messages.length, isPartnerTyping]);
 
+  // ── Typing indikator — foydalanuvchi yozayotganida ────────
+  const handleTypingEmit = useCallback(() => {
+    if (!matchId) return;
+    const now = Date.now();
+    // 1 sekund ichida takroriy emit qilmaslik (debounce)
+    if (now - lastTypingEmitRef.current < 1000) return;
+    lastTypingEmitRef.current = now;
+    emitTyping(matchId, true);
+
+    // 2 sekunddan keyin typing to'xtatish signali
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
+      emitTyping(matchId!, false);
+    }, 2000);
+  }, [matchId]);
+
+  // ── Xabar yuborish (Optimistic UI bilan) ──────────────────
   async function send(content: string) {
     const body = content.trim();
     if (!body || !matchId || sending) return;
     setSending(true);
     setText('');
+
+    // Typing to'xtatish
+    emitTyping(matchId, false);
+
+    // Vaqtinchalik ID bilan darhol ekranga qo'shish (Optimistic UI)
+    const tempId = `temp_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const optimisticMsg: ExtendedMessage = {
+      id: tempId,
+      matchId,
+      senderId: meId!,
+      type: 'TEXT',
+      content: body,
+      readAt: null,
+      createdAt: new Date().toISOString(),
+      tempId,
+      status: 'SENDING',
+    };
+
+    setMessages((m) => [...m, optimisticMsg]);
+
     try {
-      const msg = await sendMessage(matchId, body);
-      setMessages((m) => [...m, msg]);
+      const serverMsg = await sendMessage(matchId, body);
+      // Server javob berganida vaqtinchalik ID ni haqiqiy ID bilan almashtirish
+      setMessages((m) =>
+        m.map((msg) =>
+          msg.tempId === tempId
+            ? { ...serverMsg, tempId: undefined, status: 'SENT' as MessageStatus }
+            : msg,
+        ),
+      );
     } catch {
-      setText(body);
+      // Xatolik — xabarni FAILED deb belgilash
+      setMessages((m) =>
+        m.map((msg) =>
+          msg.tempId === tempId ? { ...msg, status: 'FAILED' as MessageStatus } : msg,
+        ),
+      );
     } finally {
       setSending(false);
     }
   }
 
+  // ── Xabarni qayta yuborish ────────────────────────────────
+  async function retrySend(tempId: string) {
+    const msg = messages.find((m) => m.tempId === tempId);
+    if (!msg || !matchId) return;
+
+    // Statusni SENDING ga qaytarish
+    setMessages((m) =>
+      m.map((x) => (x.tempId === tempId ? { ...x, status: 'SENDING' as MessageStatus } : x)),
+    );
+
+    try {
+      const serverMsg = await sendMessage(matchId, msg.content);
+      setMessages((m) =>
+        m.map((x) =>
+          x.tempId === tempId
+            ? { ...serverMsg, tempId: undefined, status: 'SENT' as MessageStatus }
+            : x,
+        ),
+      );
+    } catch {
+      setMessages((m) =>
+        m.map((x) => (x.tempId === tempId ? { ...x, status: 'FAILED' as MessageStatus } : x)),
+      );
+    }
+  }
+
+  // ── Ovozli xabar yuborish ─────────────────────────────────
+  async function sendVoice(blob: Blob, durationSec: number) {
+    if (!matchId) return;
+
+    // Blob'ni base64 data URL ga aylantirish
+    const dataUrl: string = await new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = () => res(reader.result as string);
+      reader.onerror = rej;
+      reader.readAsDataURL(blob);
+    });
+
+    // Optimistic UI — darhol ko'rsatish
+    const tempId = `voice_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const optimisticMsg: ExtendedMessage = {
+      id: tempId,
+      matchId,
+      senderId: meId!,
+      type: 'VOICE',
+      content: URL.createObjectURL(blob), // Lokal URL — darhol o'ynatish uchun
+      readAt: null,
+      createdAt: new Date().toISOString(),
+      tempId,
+      status: 'SENDING',
+      audioDuration: durationSec,
+    };
+
+    setMessages((m) => [...m, optimisticMsg]);
+
+    try {
+      // Ovozli xabarni serverga yuborish (rasm yuborish kabi)
+      const serverMsg = await sendChatImage(matchId, dataUrl);
+      setMessages((m) =>
+        m.map((msg) =>
+          msg.tempId === tempId
+            ? {
+                ...serverMsg,
+                tempId: undefined,
+                status: 'SENT' as MessageStatus,
+                audioDuration: durationSec,
+              }
+            : msg,
+        ),
+      );
+    } catch {
+      setMessages((m) =>
+        m.map((msg) =>
+          msg.tempId === tempId ? { ...msg, status: 'FAILED' as MessageStatus } : msg,
+        ),
+      );
+    }
+  }
+
+  // ── Render ────────────────────────────────────────────────
   return (
     <div className="h-[100dvh] flex flex-col bg-surface">
-      {/* Header */}
+      {/* ── Header ──────────────────────────────────────────── */}
       <header className="fixed top-0 w-full max-w-[480px] mx-auto z-50 flex justify-between items-center px-margin-main h-14 bg-surface/70 backdrop-blur-xl border-b border-surface-container-high/50">
-        <button onClick={() => nav('/messages')} aria-label="Orqaga" className="p-2 -ml-2 text-primary press">
+        <button
+          onClick={() => nav('/messages')}
+          aria-label="Orqaga"
+          className="p-2 -ml-2 text-primary press"
+        >
           <Icon name="arrow_back_ios" />
         </button>
         <div className="flex-1 flex flex-col items-center">
-          <h1 className="text-body-lg font-body-lg font-semibold text-on-surface">{user?.firstName ?? '...'}</h1>
-          {online ? (
+          <h1 className="text-body-lg font-body-lg font-semibold text-on-surface">
+            {user?.firstName ?? '...'}
+          </h1>
+          {/* Online holati yoki typing indikator */}
+          {isPartnerTyping ? (
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex items-center gap-1 text-label-caps font-label-caps text-primary"
+            >
+              yozyapti...
+            </motion.span>
+          ) : online ? (
             <span className="flex items-center gap-1 text-label-caps font-label-caps text-success">
               <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" /> onlayn
             </span>
           ) : (
-            <span className="text-label-caps font-label-caps text-on-surface-variant">oflayn</span>
+            <span className="text-label-caps font-label-caps text-on-surface-variant">
+              oflayn
+            </span>
           )}
         </div>
         <div className="flex items-center gap-1 -mr-1">
           <Avatar url={user?.photos[0]?.url} name={user?.firstName} className="w-9 h-9" />
-          <button onClick={() => setMenuOpen(true)} aria-label="Boshqa" className="w-9 h-9 flex items-center justify-center text-on-surface press">
+          <button
+            onClick={() => setMenuOpen(true)}
+            aria-label="Boshqa"
+            className="w-9 h-9 flex items-center justify-center text-on-surface press"
+          >
             <Icon name="more_vert" />
           </button>
         </div>
@@ -141,8 +473,9 @@ export default function Chat() {
         />
       )}
 
-      {/* Messages */}
+      {/* ── Xabarlar sohasi ─────────────────────────────────── */}
       <main className="flex-1 overflow-y-auto px-margin-main pt-[72px] pb-[150px] flex flex-col gap-3 no-scrollbar">
+        {/* Bo'sh holat */}
         {messages.length === 0 && (
           <div className="flex flex-col items-center text-center mt-12 gap-2">
             <Icon name="waving_hand" fill className="text-[40px] text-primary" />
@@ -151,17 +484,42 @@ export default function Chat() {
             </p>
           </div>
         )}
+
+        {/* Xabarlar ro'yxati */}
         {messages.map((m) => {
           const mine = m.senderId === meId;
+
+          // ── Rasm xabari ──
           if (m.type === 'IMAGE') {
             return (
-              <motion.div key={m.id} {...bubbleIn(mine)} className={`flex max-w-[70%] ${mine ? 'self-end' : 'self-start'}`}>
-                <div className={`rounded-2xl overflow-hidden shadow-sm ${mine ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}`}>
-                  <img src={photoUrl(m.content)} className="w-full max-h-[300px] object-cover" loading="lazy" />
+              <motion.div
+                key={m.id}
+                {...bubbleIn(mine)}
+                className={`flex flex-col max-w-[70%] ${mine ? 'self-end items-end' : 'self-start items-start'}`}
+              >
+                <div
+                  className={`rounded-2xl overflow-hidden shadow-sm ${
+                    mine ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'
+                  }`}
+                >
+                  <img
+                    src={photoUrl(m.content)}
+                    className="w-full max-h-[300px] object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                {/* Rasm xabari uchun vaqt va status */}
+                <div className="flex items-center gap-0.5 mt-0.5 px-1">
+                  <span className="text-[10px] text-on-surface-variant/70">
+                    {clockTime(m.createdAt)}
+                  </span>
+                  <MessageStatusIcon status={m.status} mine={mine} />
                 </div>
               </motion.div>
             );
           }
+
+          // ── Sovg'a xabari ──
           if (m.type === 'GIFT') {
             return (
               <motion.div
@@ -169,17 +527,79 @@ export default function Chat() {
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 14 }}
-                className={`flex flex-col ${mine ? 'self-end items-end' : 'self-start items-start'}`}
+                className={`flex flex-col ${
+                  mine ? 'self-end items-end' : 'self-start items-start'
+                }`}
               >
-                <div className="text-[64px] leading-none animate-bounce">{GIFT_EMOJI[m.content] ?? '🎁'}</div>
+                <div className="text-[64px] leading-none animate-bounce">
+                  {GIFT_EMOJI[m.content] ?? '🎁'}
+                </div>
                 <span className="text-label-sm font-label-sm text-on-surface-variant mt-1">
-                  {mine ? 'Siz sovg\'a yubordingiz' : 'Sizga sovg\'a yubordi'} · {clockTime(m.createdAt)}
+                  {mine ? "Siz sovg'a yubordingiz" : "Sizga sovg'a yubordi"} ·{' '}
+                  {clockTime(m.createdAt)}
                 </span>
               </motion.div>
             );
           }
+
+          // ── Ovozli xabar ──
+          if (m.type === 'VOICE') {
+            return (
+              <motion.div
+                key={m.id}
+                {...bubbleIn(mine)}
+                className={`flex flex-col max-w-[85%] ${
+                  mine ? 'self-end items-end' : 'self-start items-start'
+                }`}
+              >
+                <div
+                  className={`px-3 py-2.5 rounded-2xl shadow-sm ${
+                    mine
+                      ? 'bg-gradient-to-br from-primary-container to-primary text-on-primary rounded-br-[4px]'
+                      : 'bg-surface-container text-on-surface rounded-bl-[4px]'
+                  }`}
+                >
+                  <AudioWaveform
+                    src={m.tempId ? m.content : photoUrl(m.content)}
+                    duration={m.audioDuration}
+                    mine={mine}
+                  />
+                  {/* Vaqt va status */}
+                  <div
+                    className={`flex items-center justify-end gap-0.5 mt-1 ${
+                      mine ? 'text-on-primary/80' : 'text-on-surface-variant/70'
+                    }`}
+                  >
+                    <span className="text-[10px]">{clockTime(m.createdAt)}</span>
+                    <MessageStatusIcon status={m.status} mine={mine} />
+                  </div>
+                </div>
+
+                {/* Xatolik — Qayta yuborish tugmasi */}
+                {m.status === 'FAILED' && m.tempId && (
+                  <motion.button
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    onClick={() => retrySend(m.tempId!)}
+                    className="flex items-center gap-1 mt-1 px-2 py-1 text-error text-label-sm font-label-sm press"
+                  >
+                    <Icon name="refresh" className="text-[14px]" />
+                    Qayta yuborish
+                  </motion.button>
+                )}
+              </motion.div>
+            );
+          }
+
+          // ── Matnli xabar (asosiy) ──
           return (
-            <motion.div key={m.id} {...bubbleIn(mine)} className={`flex max-w-[85%] ${mine ? 'self-end' : 'self-start'}`}>
+            <motion.div
+              key={m.id}
+              {...bubbleIn(mine)}
+              className={`flex flex-col max-w-[85%] ${
+                mine ? 'self-end items-end' : 'self-start items-start'
+              }`}
+            >
               <div
                 className={`px-4 py-3 rounded-2xl shadow-sm ${
                   mine
@@ -187,19 +607,47 @@ export default function Chat() {
                     : 'bg-surface-container text-on-surface rounded-bl-[4px]'
                 }`}
               >
-                <p className="text-body-md font-body-md leading-relaxed whitespace-pre-wrap">{m.content}</p>
-                <span className={`text-[10px] block text-right mt-1 ${mine ? 'text-on-primary/80' : 'text-on-surface-variant/70'}`}>
-                  {clockTime(m.createdAt)}
-                </span>
+                <p className="text-body-md font-body-md leading-relaxed whitespace-pre-wrap">
+                  {m.content}
+                </p>
+                {/* Vaqt va read receipt status */}
+                <div
+                  className={`flex items-center justify-end gap-0.5 mt-1 ${
+                    mine ? 'text-on-primary/80' : 'text-on-surface-variant/70'
+                  }`}
+                >
+                  <span className="text-[10px]">{clockTime(m.createdAt)}</span>
+                  <MessageStatusIcon status={m.status} mine={mine} />
+                </div>
               </div>
+
+              {/* Xatolik — Qayta yuborish tugmasi */}
+              {m.status === 'FAILED' && m.tempId && (
+                <motion.button
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={() => retrySend(m.tempId!)}
+                  className="flex items-center gap-1 mt-1 px-2 py-1 text-error text-label-sm font-label-sm press"
+                >
+                  <Icon name="refresh" className="text-[14px]" />
+                  Qayta yuborish
+                </motion.button>
+              )}
             </motion.div>
           );
         })}
+
+        {/* ── Typing indikator (boshqa foydalanuvchi yozyotganda) ─── */}
+        <AnimatePresence>
+          {isPartnerTyping && <TypingIndicator />}
+        </AnimatePresence>
+
         <div ref={endRef} />
       </main>
 
-      {/* Input */}
+      {/* ── Input sohasi ────────────────────────────────────── */}
       <div className="fixed bottom-0 left-0 w-full max-w-[480px] mx-auto z-50 bg-surface/90 backdrop-blur-xl border-t border-surface-container-highest/30 pb-safe-bottom">
+        {/* Icebreakers — faqat birinchi xabar uchun */}
         {messages.length === 0 && (
           <div className="flex overflow-x-auto no-scrollbar px-margin-main py-2.5 gap-2">
             {ICEBREAKERS.map((q) => (
@@ -213,7 +661,9 @@ export default function Chat() {
             ))}
           </div>
         )}
+
         <div className="flex items-end px-margin-main py-3 gap-2">
+          {/* Rasm tanlash */}
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={pickImage} />
           <button
             onClick={() => fileRef.current?.click()}
@@ -223,10 +673,16 @@ export default function Chat() {
           >
             <Icon name="add_photo_alternate" className="text-[22px]" />
           </button>
+
+          {/* Matn kiritish maydoni */}
           <div className="flex-1 bg-surface-container border border-surface-container-highest rounded-[20px] flex items-end pl-4 pr-1 min-h-[44px]">
             <textarea
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => {
+                setText(e.target.value);
+                // Typing indikator — har yozganida emit qilish (debounce bilan)
+                handleTypingEmit();
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
@@ -237,7 +693,7 @@ export default function Chat() {
               rows={1}
               className="flex-1 bg-transparent border-none focus:ring-0 resize-none max-h-[100px] py-3 text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant/60 outline-none"
             />
-            {/* Sovg'a (post-match) — sovg'a do'koniga */}
+            {/* Sovg'a tugmasi */}
             <button
               onClick={() => nav(`/gifts/${matchId}`)}
               aria-label="Sovg'a yuborish"
@@ -247,16 +703,23 @@ export default function Chat() {
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-coral-deep rounded-full" />
             </button>
           </div>
-          <motion.button
-            onClick={() => send(text)}
-            disabled={!text.trim() || sending}
-            aria-label="Yuborish"
-            whileTap={{ scale: 0.85 }}
-            animate={{ scale: text.trim() ? 1 : 0.92, opacity: text.trim() ? 1 : 0.5 }}
-            className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-on-primary shrink-0 mb-0.5"
-          >
-            <Icon name="send" className="text-[20px] ml-0.5" />
-          </motion.button>
+
+          {/* Mikrofon / Yuborish tugmasi */}
+          {text.trim() ? (
+            <motion.button
+              onClick={() => send(text)}
+              disabled={!text.trim() || sending}
+              aria-label="Yuborish"
+              whileTap={{ scale: 0.85 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-on-primary shrink-0 mb-0.5"
+            >
+              <Icon name="send" className="text-[20px] ml-0.5" />
+            </motion.button>
+          ) : (
+            /* Matn bo'sh bo'lganda — mikrofon tugmasi */
+            <AudioRecorder onRecorded={sendVoice} disabled={sending} />
+          )}
         </div>
       </div>
     </div>
