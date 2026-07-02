@@ -19,12 +19,21 @@ export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+/** base64url -> matn (JWT payload'i base64url'da: -/_ va padding'siz).
+ *  atob to'g'ridan-to'g'ri base64url'ni o'qiy olmaydi (- va _ da xato beradi). */
+function decodeBase64Url(input: string): string {
+  let s = input.replace(/-/g, '+').replace(/_/g, '/');
+  const pad = s.length % 4;
+  if (pad) s += '='.repeat(4 - pad);
+  return atob(s);
+}
+
 /** JWT'dan joriy user id (sub) ni oladi — qo'shimcha so'rovsiz. */
 export function getUserId(): string | null {
   const t = getToken();
   if (!t) return null;
   try {
-    const payload = JSON.parse(atob(t.split('.')[1]));
+    const payload = JSON.parse(decodeBase64Url(t.split('.')[1]));
     return payload.sub ?? null;
   } catch {
     return null;

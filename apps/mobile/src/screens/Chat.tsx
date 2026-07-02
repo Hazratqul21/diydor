@@ -639,20 +639,22 @@ export default function Chat() {
                   mine ? 'self-end items-end' : 'self-start items-start'
                 }`}
               >
-                <div className="animate-bounce">
-                  {giftInfo ? (
+                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shadow-inner ring-1 ring-primary/10">
+                  {giftInfo?.imageUrl ? (
                     <img
                       src={photoUrl(giftInfo.imageUrl)}
                       alt={giftInfo.name}
-                      className="w-24 h-24 object-contain drop-shadow-lg"
+                      className="w-20 h-20 object-contain drop-shadow-lg"
                     />
                   ) : (
-                    <div className="text-[64px] leading-none">🎁</div>
+                    <div className="text-[56px] leading-none">🎁</div>
                   )}
                 </div>
-                <span className="text-label-sm font-label-sm text-on-surface-variant mt-1">
-                  {mine ? "Siz sovg'a yubordingiz" : "Sizga sovg'a yubordi"} ·{' '}
-                  {clockTime(m.createdAt)}
+                <span className="text-label-md font-label-md text-on-surface mt-1.5">
+                  {giftInfo?.name ?? "Sovg'a"}
+                </span>
+                <span className="text-label-sm font-label-sm text-on-surface-variant">
+                  {mine ? "Siz yubordingiz" : "Sizga yuborildi"} · {clockTime(m.createdAt)}
                 </span>
               </motion.div>
             );

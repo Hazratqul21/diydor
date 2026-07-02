@@ -4,9 +4,9 @@ import { ensureGuestSession, resolveBootRoute, routeForStep, getMe } from '@/lib
 import { getPublicConfig, photoUrl } from '@/lib/data';
 import { Icon } from '@/components/Icon';
 
-// Ilovadagi standart hero (admin rasm qo'ymagan bo'lsa)
-const DEFAULT_HERO =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuC-H_P26uJDFgYfG9CEFIdb4ka7MfWMB2tknags9uPNVvrE07-LlEphJXj9z5Oe4m9XCviq7-mePk2rOkyBgfhKne12UbGCOlGMDBwChgKJ8ajZVN44CCYJ-9Rg5XogzC0bLG30-xd-UTCV3_jvD9rdiVJiSiseDm3KPU4mYBPncuMiRPvO5pFSc40blDSS1yS-9AC4b_ludbyTn7V_Bga40vN4jdsaKIs81Ij44KFzC5kF7WqAQhwnu4__aoaelhPQNx6pAMQy-Wc';
+// Ilovadagi standart hero — owned, bundle qilingan (hech qachon buzilmaydi;
+// admin paneldan welcomeImageUrl qo'ysa o'sha ustun keladi).
+const DEFAULT_HERO = '/hero.svg';
 const DEFAULT_TITLE = 'Diydor';
 const DEFAULT_SUBTITLE = 'Qalblar uchrashadigan joy';
 
