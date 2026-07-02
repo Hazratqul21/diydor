@@ -163,7 +163,7 @@ export class EconomyService {
         data: { fromUserId: senderId, toUserId: receiverId, matchId, giftKey, coinAmount: gift.priceCoins, earnedSom },
       });
       const message = await tx.message.create({
-        data: { matchId, senderId, type: 'GIFT', content: giftKey },
+        data: { matchId, senderId, type: 'GIFT', content: giftKey, giftEarnedSom: earnedSom },
       });
       const updated = await tx.user.findUnique({ where: { id: senderId }, select: { coinBalance: true } });
       return { message, coinBalance: updated!.coinBalance };

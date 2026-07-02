@@ -68,6 +68,7 @@ export interface Message {
   type: 'TEXT' | 'IMAGE' | 'VOICE' | 'GIFT' | 'SYSTEM';
   content: string;
   liked?: boolean;
+  giftEarnedSom?: number | null;
   readAt: string | null;
   createdAt: string;
 }

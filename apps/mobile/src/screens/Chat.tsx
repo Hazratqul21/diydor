@@ -653,7 +653,12 @@ export default function Chat() {
                 <span className="text-label-md font-label-md text-on-surface mt-1.5">
                   {giftInfo?.name ?? "Sovg'a"}
                 </span>
-                <span className="text-label-sm font-label-sm text-on-surface-variant">
+                {!mine && (m.giftEarnedSom ?? 0) > 0 && (
+                  <span className="mt-0.5 px-2 py-0.5 rounded-full bg-primary/12 text-primary text-label-sm font-label-sm">
+                    +{(m.giftEarnedSom ?? 0).toLocaleString('uz-UZ')} so'm hamyoningizga
+                  </span>
+                )}
+                <span className="text-label-sm font-label-sm text-on-surface-variant mt-0.5">
                   {mine ? "Siz yubordingiz" : "Sizga yuborildi"} · {clockTime(m.createdAt)}
                 </span>
               </motion.div>

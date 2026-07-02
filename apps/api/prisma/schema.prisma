@@ -223,6 +223,7 @@ model Message {
   content     String // matn yoki ovoz fayl URL'i
   status      MessageStatus  @default(SENT)
   liked       Boolean        @default(false)
+  giftEarnedSom Int?          // GIFT xabar: oluvchi hamyoniga tushgan so'm (faqat sotib olingan tanga ulushi)
   deliveredAt DateTime?
   readAt      DateTime?
   createdAt   DateTime       @default(now())
