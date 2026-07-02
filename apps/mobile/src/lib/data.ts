@@ -84,6 +84,11 @@ export const swipe = (toUserId: string, action: SwipeAction) =>
     body: JSON.stringify({ toUserId, action }),
   });
 
+export const rewindSwipe = () =>
+  apiFetch<{ success: boolean; rewoundUserId: string }>('/rewind', {
+    method: 'POST',
+  });
+
 export interface WhoLikedMe {
   locked: boolean;
   count: number;
@@ -139,6 +144,15 @@ export const sendChatImage = (matchId: string, dataUrl: string) =>
   apiFetch<Message>(`/matches/${matchId}/image`, {
     method: 'POST',
     body: JSON.stringify({ dataUrl }),
+  });
+export const updateMessage = (matchId: string, messageId: string, content: string) =>
+  apiFetch<Message>(`/matches/${matchId}/messages/${messageId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ content }),
+  });
+export const deleteMessage = (matchId: string, messageId: string) =>
+  apiFetch<{ ok: boolean }>(`/matches/${matchId}/messages/${messageId}`, {
+    method: 'DELETE',
   });
 
 // ── Economy (sovg'a / tanga / hamyon) ───────────────────────

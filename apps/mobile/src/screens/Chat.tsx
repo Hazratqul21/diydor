@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@/components/Icon';
 import { Avatar } from '@/components/Avatar';
 import { UserActionsSheet } from '@/components/UserActionsSheet';
+import { MessageActionsSheet } from '@/components/MessageActionsSheet';
 import { AudioRecorder, AudioWaveform } from '@/components/AudioRecorder';
 
 // ── Xabar bubble kirish animatsiyasi ────────────────────────
@@ -18,6 +19,8 @@ import {
   getMessages,
   sendMessage,
   sendChatImage,
+  updateMessage,
+  deleteMessage,
   getGiftCatalog,
   photoUrl,
   type Message,
@@ -147,6 +150,11 @@ export default function Chat() {
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
   const [lastTap, setLastTap] = useState<{ id: string; time: number } | null>(null);
 
+  // Message actions states
+  const [actionMessage, setActionMessage] = useState<Message | null>(null);
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+  const [replyingMessage, setReplyingMessage] = useState<Message | null>(null);
+
   const endRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -269,11 +277,23 @@ export default function Chat() {
       }
     };
 
+    const handleMessageUpdated = (data: { messageId: string; content: string }) => {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === data.messageId ? { ...m, content: data.content } : m)),
+      );
+    };
+
+    const handleMessageDeleted = (data: { messageId: string }) => {
+      setMessages((prev) => prev.filter((m) => m.id !== data.messageId));
+    };
+
     socket.on('newMessage', handleNewMessage);
     socket.on('userTyping', handleTyping);
     socket.on('messageRead', handleMessageRead);
     socket.on('messageDelivered', handleMessageDelivered);
     socket.on('messageLiked', handleMessageLiked);
+    socket.on('messageUpdated', handleMessageUpdated);
+    socket.on('messageDeleted', handleMessageDeleted);
 
     return () => {
       socket.off('newMessage', handleNewMessage);
@@ -281,6 +301,8 @@ export default function Chat() {
       socket.off('messageRead', handleMessageRead);
       socket.off('messageDelivered', handleMessageDelivered);
       socket.off('messageLiked', handleMessageLiked);
+      socket.off('messageUpdated', handleMessageUpdated);
+      socket.off('messageDeleted', handleMessageDeleted);
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, [matchId, meId]);
@@ -308,8 +330,31 @@ export default function Chat() {
 
   // ── Xabar yuborish (Optimistic UI bilan) ──────────────────
   async function send(content: string) {
-    const body = content.trim();
+    let body = content.trim();
     if (!body || !matchId || sending) return;
+
+    if (editingMessage) {
+      setSending(true);
+      try {
+        await updateMessage(matchId, editingMessage.id, body);
+        setMessages((m) => m.map(x => x.id === editingMessage.id ? { ...x, content: body } : x));
+        setEditingMessage(null);
+        setText('');
+      } catch {
+        /* error handling */
+      } finally {
+        setSending(false);
+      }
+      return;
+    }
+
+    if (replyingMessage) {
+      let quote = replyingMessage.content;
+      if (quote.includes('\n')) quote = quote.split('\n')[0] + '...';
+      body = `> ${quote}\n\n${body}`;
+      setReplyingMessage(null);
+    }
+
     setSending(true);
     setText('');
 
@@ -433,6 +478,17 @@ export default function Chat() {
     }
   }
 
+  // ── Delete message action ────────────────────────────────
+  async function doDeleteMessage(msg: Message) {
+    if (!matchId) return;
+    try {
+      await deleteMessage(matchId, msg.id);
+      setMessages((m) => m.filter((x) => x.id !== msg.id));
+    } catch {
+      //
+    }
+  }
+
   // ── Render ────────────────────────────────────────────────
   return (
     <div className="h-[100dvh] flex flex-col bg-surface">
@@ -489,6 +545,22 @@ export default function Chat() {
           onBlocked={() => nav('/messages')}
         />
       )}
+
+      <MessageActionsSheet
+        message={actionMessage}
+        open={!!actionMessage}
+        onClose={() => setActionMessage(null)}
+        onEdit={(msg) => {
+          setEditingMessage(msg);
+          setText(msg.content.replace(/^> .*?\n\n/s, '')); // O'zgartirmoqchi bo'lsa, qavsdan chiqarish kerak. Lekin edit odatda oxirgi textda bo'ladi.
+          setTimeout(() => document.querySelector('textarea')?.focus(), 100);
+        }}
+        onDelete={doDeleteMessage}
+        onReply={(msg) => {
+          setReplyingMessage(msg);
+          setTimeout(() => document.querySelector('textarea')?.focus(), 100);
+        }}
+      />
 
       {/* ── Xabarlar sohasi ─────────────────────────────────── */}
       <main className="flex-1 overflow-y-auto px-margin-main pt-[72px] pb-[150px] flex flex-col gap-3 no-scrollbar">
@@ -636,6 +708,11 @@ export default function Chat() {
           }
 
           // ── Matnli xabar (asosiy) ──
+          const parts = m.content.split('\n\n');
+          const isReply = m.content.startsWith('> ') && parts.length >= 2;
+          const quote = isReply ? parts[0].substring(2) : null;
+          const actualText = isReply ? parts.slice(1).join('\n\n') : m.content;
+
           return (
             <motion.div
               key={m.id}
@@ -646,14 +723,23 @@ export default function Chat() {
             >
               <div
                 onClick={handleDoubleTap}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  setActionMessage(m);
+                }}
                 className={`relative px-4 py-3 rounded-2xl shadow-sm cursor-pointer select-none ${
                   mine
                     ? 'bg-gradient-to-br from-primary-container to-primary text-on-primary rounded-br-[4px]'
                     : 'bg-surface-container text-on-surface rounded-bl-[4px]'
                 }`}
               >
+                {isReply && (
+                  <div className={`mb-2 pl-2 border-l-2 ${mine ? 'border-primary-container text-primary-container/80' : 'border-primary text-primary/80'} text-xs font-medium`}>
+                    {quote}
+                  </div>
+                )}
                 <p className="text-body-md font-body-md leading-relaxed whitespace-pre-wrap">
-                  {m.content}
+                  {actualText}
                 </p>
                 {/* Vaqt va read receipt status */}
                 <div
@@ -719,6 +805,34 @@ export default function Chat() {
                 {q}
               </button>
             ))}
+          </div>
+        )}
+
+        {(replyingMessage || editingMessage) && (
+          <div className="flex items-center justify-between px-margin-main py-2 bg-surface-container-low border-b border-surface-container-highest/50">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <Icon name={editingMessage ? 'edit' : 'reply'} className="text-[18px] text-primary" />
+              <div className="flex flex-col">
+                <span className="text-[11px] font-semibold text-primary">
+                  {editingMessage ? "Tahrirlash" : "Javob berish"}
+                </span>
+                <span className="text-label-sm text-on-surface-variant truncate max-w-[200px]">
+                  {(editingMessage || replyingMessage)?.type === 'TEXT'
+                    ? (editingMessage || replyingMessage)?.content.split('\n\n').pop()
+                    : (editingMessage || replyingMessage)?.type === 'IMAGE' ? "📷 Rasm" : "🎤 Ovozli xabar"}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setEditingMessage(null);
+                setReplyingMessage(null);
+                setText('');
+              }}
+              className="p-2 -mr-2 text-on-surface-variant press"
+            >
+              <Icon name="close" className="text-[18px]" />
+            </button>
           </div>
         )}
 

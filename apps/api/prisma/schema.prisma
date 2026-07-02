@@ -81,6 +81,9 @@ model User {
   // Profil (onboarding davomida to'ldiriladi)
   gender        Gender?
   seekingGender SeekingGender? @default(EVERYONE) // "Kimni qidiryapsiz?"
+  seekingAgeMin Int?           @default(18)
+  seekingAgeMax Int?           @default(50)
+  maxDistance   Int?           @default(100) // kilometrda (Discovery uchun)
   birthDate     DateTime?
   intent        Intent?        @default(UNSURE)
   bio           String? // "O'zim haqimda"

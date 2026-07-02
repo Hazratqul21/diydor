@@ -192,6 +192,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(`user_${userId}`).emit('newMatch', payload);
   }
 
+  notifyMessageUpdated(recipientId: string, payload: { messageId: string, content: string }) {
+    this.server.to(`user_${recipientId}`).emit('messageUpdated', payload);
+  }
+
+  notifyMessageDeleted(recipientId: string, payload: { messageId: string }) {
+    this.server.to(`user_${recipientId}`).emit('messageDeleted', payload);
+  }
+
   /** Foydalanuvchi hozir online'mi (kamida bitta socket ulangan). */
   async isOnline(userId: string): Promise<boolean> {
     try {

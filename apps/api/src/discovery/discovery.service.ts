@@ -56,21 +56,45 @@ export class DiscoveryService {
       where.OR = [{ seekingGender: 'EVERYONE' }, { seekingGender: me.gender }];
     }
 
+    // ── Yosh filtri ──
+    if (me.seekingAgeMin != null || me.seekingAgeMax != null) {
+      const minAge = me.seekingAgeMin ?? 18;
+      const maxAge = me.seekingAgeMax ?? 100;
+      // birthDate orqali yoshni hisoblash: hozirgi sana - yosh = max/min tug'ilgan sana
+      const today = new Date();
+      const minDate = new Date(today.getFullYear() - maxAge - 1, today.getMonth(), today.getDate());
+      const maxDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
+      
+      where.birthDate = {
+        gte: minDate,
+        lte: maxDate,
+      };
+    }
+
     // Prioritet saralash uchun kerakli darajada ko'proq nomzod olamiz
-    const pool = await this.prisma.user.findMany({
+    let pool = await this.prisma.user.findMany({
       where,
       include: {
         photos: { where: { moderationStatus: 'APPROVED' }, orderBy: { order: 'asc' } },
         prompts: { orderBy: { order: 'asc' } },
       },
-      take: Math.max(limit * 5, 50),
+      take: Math.max(limit * 10, 100), // ko'proq olamiz chunki JS da masofaga qarab filtrlaymiz
       orderBy: { lastActiveAt: 'desc' },
     });
 
-    // ─── Ko'p omilli tartiblash ───
+    // ── Masofa filtri (faqat JS da) ──
     const now = Date.now();
     const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
     const hasMyLocation = me.latitude != null && me.longitude != null;
+    const maxDistanceKm = me.maxDistance ?? 100; // default 100km
+
+    if (hasMyLocation) {
+      pool = pool.filter((candidate) => {
+        if (candidate.latitude == null || candidate.longitude == null) return false;
+        const dist = haversineKm(me.latitude!, me.longitude!, candidate.latitude, candidate.longitude);
+        return dist <= maxDistanceKm;
+      });
+    }
 
     return pool
       .sort((a, b) => {
@@ -232,6 +256,49 @@ export class DiscoveryService {
         user: serializeUser(l.fromUser),
       })),
     };
+  }
+
+  /**
+   * Rewind: Oxirgi qilingan svaypni bekor qilish.
+   * Premium (Plus/Gold/Platinum) imkoniyati. Ayollar uchun bepul.
+   */
+  async rewind(meId: string) {
+    const me = await this.prisma.user.findUnique({
+      where: { id: meId },
+      select: { subscriptionTier: true, gender: true, subscriptionUntil: true },
+    });
+    if (!me) throw new BadRequestException('User topilmadi');
+
+    const canRewind = me.gender === 'FEMALE' || isSubscribed(me);
+    if (!canRewind) {
+      throw new ForbiddenException({
+        code: 'REWIND_LOCKED',
+        message: 'Svaypni bekor qilish uchun obuna oling (Plus, Gold yoki Platinum).',
+      });
+    }
+
+    // Oxirgi svaypni topamiz
+    const lastSwipe = await this.prisma.swipe.findFirst({
+      where: { fromUserId: meId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!lastSwipe) {
+      throw new BadRequestException('Bekor qilish uchun svayp topilmadi.');
+    }
+
+    // Agar bu LIKE natijasida Match tuzilgan bo'lsa, Match ni ham o'chiramiz
+    const [userAId, userBId] = [meId, lastSwipe.toUserId].sort();
+    await this.prisma.match.deleteMany({
+      where: { userAId, userBId },
+    });
+
+    // Svaypni o'chiramiz
+    await this.prisma.swipe.delete({
+      where: { id: lastSwipe.id },
+    });
+
+    return { success: true, rewoundUserId: lastSwipe.toUserId };
   }
 
   /**

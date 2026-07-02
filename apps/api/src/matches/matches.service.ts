@@ -22,7 +22,7 @@ export class MatchesService {
    * Qabul qiluvchi online bo'lmasa Telegram push yuboradi (re-engagement).
    * Socket orqali allaqachon xabar berilgan bo'ladi.
    */
-  private async pushIfOffline(recipientId: string, senderId: string, kind: 'text' | 'image' | 'gift') {
+  private async pushIfOffline(recipientId: string, senderId: string, kind: 'text' | 'image' | 'gift' | 'voice') {
     if (await this.chatGateway.isOnline(recipientId)) return;
     // Oluvchining maxfiylik sozlamasi: yuboruvchi ismi ko'rsatilsinmi?
     const recipient = await this.prisma.user.findUnique({
@@ -43,12 +43,16 @@ export class MatchesService {
         ? `📷 <b>${name}</b> sizga rasm yubordi`
         : kind === 'gift'
           ? `🎁 <b>${name}</b> sizga sovg'a yubordi`
-          : `💬 <b>${name}</b> sizga yangi xabar yubordi`
+          : kind === 'voice'
+            ? `🎤 <b>${name}</b> sizga ovozli xabar yubordi`
+            : `💬 <b>${name}</b> sizga yangi xabar yubordi`
       : kind === 'image'
         ? `📷 Sizga yangi rasm bor`
         : kind === 'gift'
           ? `🎁 Sizga yangi sovg'a bor`
-          : `💬 Sizga yangi xabar bor`;
+          : kind === 'voice'
+            ? `🎤 Sizga yangi ovozli xabar bor`
+            : `💬 Sizga yangi xabar bor`;
     await this.telegram.sendToUser(recipientId, body);
   }
 
@@ -129,27 +133,62 @@ export class MatchesService {
     return msg;
   }
 
-  /** Chatда rasm yuborish: base64 data URL -> diskka saqlanadi -> IMAGE xabar. */
+  /** Chatда rasm yuborish: base64 data URL -> diskka saqlanadi -> IMAGE/VOICE xabar. */
   async sendImage(meId: string, matchId: string, dataUrl: string) {
     const match = await this.assertMember(matchId, meId);
 
-    const m = /^data:(image\/(png|jpeg|jpg|webp));base64,(.+)$/.exec(dataUrl);
-    if (!m) throw new BadRequestException('Rasm formati xato');
-    const ext = m[2] === 'jpeg' ? 'jpg' : m[2];
+    const m = /^data:(image|audio)\/([^;]+)(?:;codecs=[^,]*)?;base64,(.+)$/.exec(dataUrl);
+    if (!m) throw new BadRequestException('Fayl formati noto\'g\'ri');
+    
+    const mediaType = m[1]; // image, audio
+    let ext = m[2] === 'jpeg' ? 'jpg' : m[2];
+    if (ext === 'webm') ext = 'webm';
+    if (ext === 'mp4') ext = 'mp4';
+    
     const buffer = Buffer.from(m[3], 'base64');
-    if (buffer.byteLength > 8 * 1024 * 1024) throw new BadRequestException('Rasm hajmi 8MB dan oshmasin');
+    if (buffer.byteLength > 20 * 1024 * 1024) throw new BadRequestException('Fayl hajmi 20MB dan oshmasin');
 
     fs.mkdirSync(UPLOAD_DIR, { recursive: true });
     const fileName = `${randomUUID()}.${ext}`;
     fs.writeFileSync(path.join(UPLOAD_DIR, fileName), buffer);
     const url = `/uploads/chat/${fileName}`;
 
+    const type = mediaType === 'audio' ? 'VOICE' : 'IMAGE';
+
     const msg = await this.prisma.message.create({
-      data: { matchId, senderId: meId, content: url, type: 'IMAGE' },
+      data: { matchId, senderId: meId, content: url, type },
     });
     const recipientId = match.userAId === meId ? match.userBId : match.userAId;
     this.chatGateway.notifyNewMessage(recipientId, msg);
-    void this.pushIfOffline(recipientId, meId, 'image');
+    void this.pushIfOffline(recipientId, meId, type === 'IMAGE' ? 'image' : 'voice' as any);
+
     return msg;
+  }
+
+  async updateMessage(meId: string, matchId: string, messageId: string, content: string) {
+    const match = await this.assertMember(matchId, meId);
+    const msg = await this.prisma.message.findUnique({ where: { id: messageId } });
+    if (!msg || msg.senderId !== meId) throw new ForbiddenException('Xabarni tahrirlash mumkin emas');
+    
+    const updated = await this.prisma.message.update({
+      where: { id: messageId },
+      data: { content },
+    });
+
+    const recipientId = match.userAId === meId ? match.userBId : match.userAId;
+    this.chatGateway.notifyMessageUpdated(recipientId, { messageId, content });
+    return updated;
+  }
+
+  async deleteMessage(meId: string, matchId: string, messageId: string) {
+    const match = await this.assertMember(matchId, meId);
+    const msg = await this.prisma.message.findUnique({ where: { id: messageId } });
+    if (!msg || msg.senderId !== meId) throw new ForbiddenException('Xabarni o\'chirish mumkin emas');
+
+    await this.prisma.message.delete({ where: { id: messageId } });
+    
+    const recipientId = match.userAId === meId ? match.userBId : match.userAId;
+    this.chatGateway.notifyMessageDeleted(recipientId, { messageId });
+    return { ok: true };
   }
 }

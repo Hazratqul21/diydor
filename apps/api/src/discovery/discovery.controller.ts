@@ -25,4 +25,9 @@ export class DiscoveryController {
   whoLikedMe(@CurrentUser('id') userId: string) {
     return this.discovery.whoLikedMe(userId);
   }
+
+  @Post('rewind')
+  rewind(@CurrentUser('id') userId: string) {
+    return this.discovery.rewind(userId);
+  }
 }

@@ -25,6 +25,18 @@ export class UpdateProfileDto {
   @IsEnum(SeekingGender)
   seekingGender?: SeekingGender;
 
+  @IsOptional()
+  @IsNumber()
+  seekingAgeMin?: number;
+
+  @IsOptional()
+  @IsNumber()
+  seekingAgeMax?: number;
+
+  @IsOptional()
+  @IsNumber()
+  maxDistance?: number;
+
   /** ISO sana, masalan "2000-05-15". 18+ tekshiriladi. */
   @IsOptional()
   @IsDateString()

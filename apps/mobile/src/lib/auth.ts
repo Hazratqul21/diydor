@@ -9,6 +9,9 @@ export interface Me {
   firstName: string;
   gender: Gender | null;
   seekingGender: SeekingGender | null;
+  seekingAgeMin: number | null;
+  seekingAgeMax: number | null;
+  maxDistance: number | null;
   intent: Intent | null;
   bio: string | null;
   interests: string[];
@@ -27,6 +30,9 @@ export interface ProfilePatch {
   firstName?: string;
   gender?: Gender;
   seekingGender?: SeekingGender;
+  seekingAgeMin?: number;
+  seekingAgeMax?: number;
+  maxDistance?: number;
   intent?: Intent;
   bio?: string;
   interests?: string[];

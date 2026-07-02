@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Delete } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -33,5 +33,24 @@ export class MatchesController {
     @Body() body: { dataUrl: string },
   ) {
     return this.matches.sendImage(userId, matchId, body.dataUrl);
+  }
+
+  @Put(':id/messages/:messageId')
+  updateMessage(
+    @CurrentUser('id') userId: string,
+    @Param('id') matchId: string,
+    @Param('messageId') messageId: string,
+    @Body() body: { content: string },
+  ) {
+    return this.matches.updateMessage(userId, matchId, messageId, body.content);
+  }
+
+  @Delete(':id/messages/:messageId')
+  deleteMessage(
+    @CurrentUser('id') userId: string,
+    @Param('id') matchId: string,
+    @Param('messageId') messageId: string,
+  ) {
+    return this.matches.deleteMessage(userId, matchId, messageId);
   }
 }

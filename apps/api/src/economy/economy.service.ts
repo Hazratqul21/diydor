@@ -51,10 +51,20 @@ export class EconomyService {
   }
 
   async getGiftCatalog() {
-    return this.prisma.giftItem.findMany({
+    const gifts = await this.prisma.giftItem.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: 'asc' },
     });
+    
+    const cfg = await this.prisma.appConfig.findUnique({ where: { id: 'singleton' } });
+    const receiverSharePercent = cfg?.receiverSharePercent ?? 50;
+    const coinToSom = cfg?.coinToSom ?? 100;
+
+    return gifts.map(g => ({
+      ...g,
+      // Haqiqiy tushadigan summani klient uchun hisoblab yuboramiz
+      cashoutSom: Math.floor((g.priceCoins * receiverSharePercent / 100) * coinToSom),
+    }));
   }
 
   getCoinPackages() {
@@ -115,21 +125,30 @@ export class EconomyService {
     const { message, coinBalance } = await this.prisma.$transaction(async (tx) => {
       const sender = await tx.user.findUnique({
         where: { id: senderId },
-        select: { coinBalance: true },
+        select: { coinBalance: true, paidCoinBalance: true },
       });
       if (!sender || sender.coinBalance < gift.priceCoins) {
         throw new BadRequestException('Tanga yetarli emas');
       }
 
-      // Yangi mantiq: Har qanday tangadan (bepul/pullik) qat'i nazar
-      // belgilangan cashoutSom miqdorida pul tushadi. Komissiya narxda ushlanib qoladi.
-      const earnedSom = gift.cashoutSom;
+      // AppConfig'dan komissiya foizini o'qish (dinamik komissiya)
+      const cfg = await tx.appConfig.findUnique({ where: { id: 'singleton' } });
+      const receiverSharePercent = cfg?.receiverSharePercent ?? 50;
+      const coinToSom = cfg?.coinToSom ?? 100;
+
+      // TESHIK YOPIQ: faqat SOTIB OLINGAN tanga (paidCoinBalance) oluvchining
+      // yechiladigan so'miga aylanadi. Bepul (150 boshlang'ich + kunlik bonus +
+      // sovg'adan kelgan) tanga status uchun sarflanadi, real pul YARATMAYDI —
+      // aks holda soxta akkauntlar bepul tangani pulga aylantirib firibgarlik qiladi.
+      const paidUsed = Math.min(gift.priceCoins, sender.paidCoinBalance);
+      const earnedSom = Math.floor((paidUsed * receiverSharePercent / 100) * coinToSom);
 
       // Shartli decrement — bir vaqtli sovg'alarda balans manfiyga tushmaydi
       const dec = await tx.user.updateMany({
         where: { id: senderId, coinBalance: { gte: gift.priceCoins } },
         data: {
           coinBalance: { decrement: gift.priceCoins },
+          paidCoinBalance: { decrement: paidUsed },
         },
       });
       if (dec.count !== 1) throw new BadRequestException('Tanga yetarli emas');

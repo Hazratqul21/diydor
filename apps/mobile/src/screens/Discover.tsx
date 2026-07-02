@@ -13,6 +13,7 @@ import { Icon } from '@/components/Icon';
 import {
   getDiscovery,
   swipe,
+  rewindSwipe,
   photoUrl,
   type Profile,
   type SwipeAction,
@@ -103,6 +104,26 @@ export default function Discover() {
     cardRef.current?.swipe(dir);
   }
 
+  async function handleRewind() {
+    if (busy.current || paywall) return;
+    busy.current = true;
+    try {
+      await rewindSwipe();
+      // Muvaffaqiyatli bo'lsa, qidiruvni yangilash yoki shunchaki xabar chiqarish
+      setTab(tab === 'for-you' ? 'nearby' : 'for-you');
+      setTimeout(() => setTab(tab), 10); // kichik hack: tab'ni yangilab discovery ni qayta yuklash
+    } catch (e) {
+      if (e instanceof ApiError && e.code === 'REWIND_LOCKED') {
+        setPaywall({
+          title: 'Premium funksiya',
+          message: e.message,
+        });
+      }
+    } finally {
+      busy.current = false;
+    }
+  }
+
   return (
     <div className="h-[100dvh] flex flex-col relative overflow-hidden">
       {/* Header: segmented */}
@@ -143,7 +164,7 @@ export default function Discover() {
               onExited={onExited}
               onOpen={() => nav(`/u/${current.id}`)}
             />
-            <ActionButtons onAct={triggerSwipe} />
+            <ActionButtons onAct={triggerSwipe} onRewind={handleRewind} />
           </>
         )}
       </main>
@@ -316,9 +337,17 @@ function CardStatic({ profile }: { profile: Profile }) {
   );
 }
 
-function ActionButtons({ onAct }: { onAct: (a: SwipeDir) => void }) {
+function ActionButtons({ onAct, onRewind }: { onAct: (a: SwipeDir) => void; onRewind: () => void }) {
   return (
-    <div className="absolute bottom-[120px] w-full flex justify-center items-center gap-6 z-20">
+    <div className="absolute bottom-[120px] w-full flex justify-center items-center gap-4 z-20">
+      <motion.button
+        whileTap={{ scale: 0.86 }}
+        aria-label="Ortga"
+        onClick={onRewind}
+        className="w-12 h-12 rounded-full bg-surface-container-lowest clay flex items-center justify-center text-warning"
+      >
+        <Icon name="undo" className="text-[24px]" />
+      </motion.button>
       <motion.button
         whileTap={{ scale: 0.86 }}
         aria-label="O'tkazish"

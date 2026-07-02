@@ -12,10 +12,24 @@ export default function Settings() {
   const [confirmDel, setConfirmDel] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showSender, setShowSender] = useState<boolean | null>(null);
+  const [filters, setFilters] = useState({
+    seekingAgeMin: 18,
+    seekingAgeMax: 50,
+    maxDistance: 100,
+    seekingGender: 'EVERYONE' as any,
+  });
 
   useEffect(() => {
     getMe()
-      .then((m) => setShowSender(m.notifyShowSender))
+      .then((m) => {
+        setShowSender(m.notifyShowSender);
+        setFilters({
+          seekingAgeMin: m.seekingAgeMin ?? 18,
+          seekingAgeMax: m.seekingAgeMax ?? 50,
+          maxDistance: m.maxDistance ?? 100,
+          seekingGender: m.seekingGender || 'EVERYONE',
+        });
+      })
       .catch(() => setShowSender(false));
   }, []);
 
@@ -26,6 +40,15 @@ export default function Settings() {
       await updateProfile({ notifyShowSender: next });
     } catch {
       setShowSender(!next); // qaytarish
+    }
+  }
+
+  async function updateFilter(key: keyof typeof filters, value: any) {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    try {
+      await updateProfile({ [key]: value });
+    } catch (e) {
+      console.error('Filter saqlanmadi', e);
     }
   }
 
@@ -87,6 +110,82 @@ export default function Settings() {
             <Icon name="delete_forever" className="text-[18px]" />
             Akkauntni o'chirish
           </button>
+        </div>
+
+        {/* Tanishuv filtrlari */}
+        <div className="bg-surface-variant/30 rounded-2xl p-4 border border-outline-variant/30 flex flex-col gap-5">
+          <h2 className="text-title-md font-title-md text-on-surface">Tanishuv filtrlari</h2>
+
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-center">
+              <span className="text-label-lg font-label-lg text-on-surface">Qidiruv yoshi: {filters.seekingAgeMin} - {filters.seekingAgeMax}</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex-1 flex flex-col gap-1">
+                <span className="text-label-sm text-on-surface-variant">Minimal</span>
+                <input
+                  type="range"
+                  min={18}
+                  max={filters.seekingAgeMax}
+                  value={filters.seekingAgeMin}
+                  onChange={(e) => setFilters(p => ({ ...p, seekingAgeMin: +e.target.value }))}
+                  onPointerUp={(e) => updateFilter('seekingAgeMin', +(e.target as HTMLInputElement).value)}
+                  className="w-full accent-primary"
+                />
+              </div>
+              <div className="flex-1 flex flex-col gap-1">
+                <span className="text-label-sm text-on-surface-variant">Maksimal</span>
+                <input
+                  type="range"
+                  min={filters.seekingAgeMin}
+                  max={80}
+                  value={filters.seekingAgeMax}
+                  onChange={(e) => setFilters(p => ({ ...p, seekingAgeMax: +e.target.value }))}
+                  onPointerUp={(e) => updateFilter('seekingAgeMax', +(e.target as HTMLInputElement).value)}
+                  className="w-full accent-primary"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-center">
+              <span className="text-label-lg font-label-lg text-on-surface">Maksimal masofa</span>
+              <span className="text-label-md text-on-surface-variant">{filters.maxDistance} km</span>
+            </div>
+            <input
+              type="range"
+              min={1}
+              max={1000}
+              value={filters.maxDistance}
+              onChange={(e) => setFilters(p => ({ ...p, maxDistance: +e.target.value }))}
+              onPointerUp={(e) => updateFilter('maxDistance', +(e.target as HTMLInputElement).value)}
+              className="w-full accent-primary"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-label-lg font-label-lg text-on-surface">Kimni qidiryapsiz?</span>
+            <div className="flex bg-surface-container rounded-xl p-1 gap-1">
+              {[
+                { val: 'EVERYONE', label: 'Barchani' },
+                { val: 'MALE', label: 'Erkaklar' },
+                { val: 'FEMALE', label: 'Ayollar' },
+              ].map((opt) => (
+                <button
+                  key={opt.val}
+                  onClick={() => updateFilter('seekingGender', opt.val)}
+                  className={`flex-1 h-10 rounded-lg text-label-md font-label-md transition-colors ${
+                    filters.seekingGender === opt.val
+                      ? 'bg-primary text-on-primary shadow-sm'
+                      : 'text-on-surface-variant hover:bg-surface-variant/30'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Bildirishnoma maxfiyligi */}
