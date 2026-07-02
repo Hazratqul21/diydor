@@ -47,7 +47,7 @@ export default function Age() {
       <main className="flex-grow pt-24 px-margin-main flex flex-col">
         <div className="text-center mb-10">
           <h1 className="text-headline-lg-mobile font-headline-lg-mobile text-on-surface mb-2">
-            Tug'ilgan sananggiz
+            Tug'ilgan sanangiz
           </h1>
           <p className="text-body-md font-body-md text-on-surface-variant max-w-[300px] mx-auto">
             Diydor 18 yoshdan katta foydalanuvchilar uchun. Yoshingiz profilingizda ko'rsatiladi.

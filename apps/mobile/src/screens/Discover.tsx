@@ -230,6 +230,8 @@ const SwipeCard = forwardRef<CardHandle, { profile: Profile; onExited: (a: Swipe
     }
 
     const photo = profile.photos[0];
+    // Rasm 404/xato bo'lsa oq karta o'rniga placeholder ko'rsatamiz
+    const [imgErr, setImgErr] = useState(false);
 
     return (
       <motion.div
@@ -247,11 +249,12 @@ const SwipeCard = forwardRef<CardHandle, { profile: Profile; onExited: (a: Swipe
         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         className="absolute w-full max-w-[380px] aspect-[3/4] max-h-[68vh] rounded-[24px] overflow-hidden shadow-[0px_10px_30px_rgba(0,0,0,0.14)] bg-surface-container-lowest cursor-grab active:cursor-grabbing touch-none"
       >
-        {photo ? (
+        {photo && !imgErr ? (
           <img
             src={photoUrl(photo.url)}
             alt={profile.firstName}
             draggable={false}
+            onError={() => setImgErr(true)}
             className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           />
         ) : (
@@ -317,6 +320,7 @@ const SwipeCard = forwardRef<CardHandle, { profile: Profile; onExited: (a: Swipe
 // Orqadagi (keyingi) karta — statik, kichikroq
 function CardStatic({ profile }: { profile: Profile }) {
   const photo = profile.photos[0];
+  const [imgErr, setImgErr] = useState(false);
   return (
     <motion.div
       initial={{ scale: 0.9, y: 16 }}
@@ -325,8 +329,13 @@ function CardStatic({ profile }: { profile: Profile }) {
       style={{ zIndex: 1 }}
       className="absolute w-full max-w-[380px] aspect-[3/4] max-h-[68vh] rounded-[24px] overflow-hidden shadow-[0px_10px_30px_rgba(0,0,0,0.08)] bg-surface-container-lowest"
     >
-      {photo ? (
-        <img src={photoUrl(photo.url)} alt="" className="absolute inset-0 w-full h-full object-cover" />
+      {photo && !imgErr ? (
+        <img
+          src={photoUrl(photo.url)}
+          alt=""
+          onError={() => setImgErr(true)}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
       ) : (
         <div className="absolute inset-0 bg-surface-container flex items-center justify-center">
           <Icon name="person" className="text-[80px] text-on-surface-variant" />

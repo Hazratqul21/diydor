@@ -30,10 +30,13 @@ export class TelegramNotifyService {
     return this.config.get<string>('TELEGRAM_WEBHOOK_SECRET') ?? '';
   }
 
-  /** Mini-app'ni Telegram ichida ochadigan tugma (auto-login initData bilan). */
-  private appButton() {
+  /** Mini-app'ni Telegram ichida ochadigan tugma (auto-login initData bilan).
+   *  ref berilsa URL'ga qo'shiladi — /start <kod> orqali kelgan referal
+   *  atributsiyasi mini-app ochilganda ham saqlanadi. */
+  private appButton(ref?: string) {
+    const url = ref ? `${this.appUrl}/?ref=${encodeURIComponent(ref)}` : this.appUrl;
     return {
-      inline_keyboard: [[{ text: '💫 Diydorni ochish', web_app: { url: this.appUrl } }]],
+      inline_keyboard: [[{ text: '💫 Diydorni ochish', web_app: { url } }]],
     };
   }
 
@@ -85,14 +88,16 @@ export class TelegramNotifyService {
 
       // /start yoki har qanday birinchi murojaat -> xush kelibsiz + mini-app tugmasi
       if (text.startsWith('/start') || text === '') {
-        await this.sendWelcome(chatId, msg?.from?.first_name);
+        // "/start ref_kod" — deep-link payload (referal)
+        const payload = text.split(/\s+/)[1]?.trim();
+        await this.sendWelcome(chatId, msg?.from?.first_name, payload);
       }
     } catch (e) {
       this.logger.warn(`handleUpdate xato: ${(e as Error).message}`);
     }
   }
 
-  private async sendWelcome(chatId: number | string, firstName?: string): Promise<void> {
+  private async sendWelcome(chatId: number | string, firstName?: string, ref?: string): Promise<void> {
     if (!this.token) return;
     const name = firstName ? `, <b>${escapeHtml(firstName)}</b>` : '';
     const text =
@@ -107,7 +112,7 @@ export class TelegramNotifyService {
           chat_id: chatId,
           text,
           parse_mode: 'HTML',
-          reply_markup: this.appButton(),
+          reply_markup: this.appButton(ref),
         }),
       });
       if (!res.ok) {

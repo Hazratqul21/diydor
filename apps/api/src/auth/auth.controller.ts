@@ -14,14 +14,14 @@ export class AuthController {
   @Public()
   @Post('telegram')
   telegram(@Body() dto: TelegramLoginDto) {
-    return this.authService.loginWithTelegram(dto.initData);
+    return this.authService.loginWithTelegram(dto.initData, dto.ref);
   }
 
   /** Mustaqil ilova: mehmon (anonim) kirish -> JWT */
   @Public()
   @Post('guest')
   guest(@Body() dto: GuestLoginDto) {
-    return this.authService.loginAsGuest(dto.firstName);
+    return this.authService.loginAsGuest(dto.firstName, dto.ref);
   }
 
   /** Telefon OTP so'rovi (Flutter/standalone). Abusega qarshi qattiq limit. */

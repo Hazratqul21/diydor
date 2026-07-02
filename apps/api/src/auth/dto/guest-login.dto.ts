@@ -6,4 +6,10 @@ export class GuestLoginDto {
   @IsString()
   @MaxLength(50)
   firstName?: string;
+
+  /** Referal kodi (?ref=... URL parametridan). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  ref?: string;
 }

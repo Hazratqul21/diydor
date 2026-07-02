@@ -9,6 +9,7 @@ import Reports from './screens/Reports';
 import Chats from './screens/Chats';
 import Plans from './screens/Plans';
 import Withdrawals from './screens/Withdrawals';
+import Referrals from './screens/Referrals';
 import Settings from './screens/Settings';
 
 function Protected({ children }: { children: React.ReactNode }) {
@@ -27,6 +28,7 @@ export default function App() {
       <Route path="/chats" element={<Protected><Chats /></Protected>} />
       <Route path="/plans" element={<Protected><Plans /></Protected>} />
       <Route path="/withdrawals" element={<Protected><Withdrawals /></Protected>} />
+      <Route path="/referrals" element={<Protected><Referrals /></Protected>} />
       <Route path="/settings" element={<Protected><Settings /></Protected>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

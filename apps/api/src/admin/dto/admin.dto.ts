@@ -5,6 +5,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  MaxLength,
   Min,
   MinLength,
 } from 'class-validator';
@@ -17,6 +18,20 @@ export class AdminLoginDto {
   @IsString()
   @MinLength(6)
   password: string;
+}
+
+export class CreateReferralDto {
+  /** Promouter ismi / izoh (jadvalda ko'rinadi). */
+  @IsString()
+  @MinLength(2)
+  @MaxLength(60)
+  name: string;
+
+  /** Ixtiyoriy maxsus kod; bo'sh bo'lsa tasodifiy generatsiya qilinadi. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  code?: string;
 }
 
 export class UpdateConfigDto {

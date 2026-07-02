@@ -118,6 +118,10 @@ model User {
 
   lastLoginAt DateTime? // kunlik bonus uchun
 
+  // Referal (promouter linki orqali kelgan bo'lsa)
+  referralCodeId String?
+  referredBy     ReferralCode? @relation("ReferredUsers", fields: [referralCodeId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -139,7 +143,25 @@ model User {
   withdrawals     WithdrawalRequest[]
 
   @@index([lastActiveAt])
+  @@index([referralCodeId])
   @@map("users")
+}
+
+// ─────────────────────── ReferralCode ──────────────────────────
+// Promouterlar uchun referal linklar (admin panel generatsiya qiladi).
+// Link: https://t.me/<bot>?startapp=<code> — initData.start_param orqali
+// yangi user ro'yxatdan o'tganda atributsiya qilinadi.
+
+model ReferralCode {
+  id        String   @id @default(cuid())
+  code      String   @unique // qisqa kod (linkda ishlatiladi)
+  name      String // promouter ismi / izoh
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  users User[] @relation("ReferredUsers")
+
+  @@map("referral_codes")
 }
 
 // ─────────────────────────── Photo ─────────────────────────────

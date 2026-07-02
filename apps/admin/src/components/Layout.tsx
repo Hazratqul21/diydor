@@ -10,6 +10,7 @@ const NAV = [
   { to: '/chats', label: 'Suhbatlar', icon: 'forum' },
   { to: '/reports', label: 'Shikoyatlar', icon: 'flag' },
   { to: '/plans', label: 'Tariflar', icon: 'workspace_premium' },
+  { to: '/referrals', label: 'Referal linklar', icon: 'share' },
   { to: '/settings', label: 'Sozlamalar', icon: 'settings' },
 ];
 

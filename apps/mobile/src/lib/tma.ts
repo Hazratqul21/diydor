@@ -29,10 +29,16 @@ export function tmaReady() {
   // Yopish tasdiqlash dialogini yoqish (foydalanuvchi tasodifan chiqmasligi uchun)
   tg.enableClosingConfirmation?.();
 
-  // Viewport'ni kengaytirish
+  // Svayp kartalarini sudrashda mini-app pastga tortilib yopilmasligi uchun
+  // (Bot API 7.7+; eski versiyalarda xavfsiz no-op)
+  tg.disableVerticalSwipes?.();
+
+  // Telegram header/fon rangini ilova yuzasi bilan moslash.
+  // MUHIM: ilova ILIQ OQ (#fbf6f0) — qora qo'yilsa ilova atrofi qop-qora
+  // bo'lib, dizayn "singan" ko'rinadi.
   if (tg.isVersionAtLeast?.('6.1')) {
-    tg.setHeaderColor?.('#1c1917'); // platinum-dark rangi
-    tg.setBackgroundColor?.('#1c1917');
+    tg.setHeaderColor?.('#fbf6f0'); // surface (iliq oq)
+    tg.setBackgroundColor?.('#fbf6f0');
   }
 }
 
@@ -124,24 +130,13 @@ export function lockTmaScroll() {
   const tg = getTg();
   if (!tg) return;
 
-  // Body scroll'ni bloklash
+  // Overscroll (rubber-band) ni o'chiramiz, lekin ODDIY sahifa scroll'iga
+  // TEGMAYMIZ. Oldingi variant touchmove'ni global preventDefault qilib,
+  // body-scroll ishlatadigan ekranlarni (Xabarlar, Profil, Obuna...)
+  // Telegram ichida BUTUNLAY scroll bo'lmaydigan qilib qo'ygan edi.
+  // Tasodifiy yopilishdan endi disableVerticalSwipes() himoya qiladi.
   document.body.style.overscrollBehavior = 'none';
-  document.body.style.touchAction = 'pan-x pan-y';
   document.documentElement.style.overscrollBehavior = 'none';
-
-  // iOS rubber-band scroll'ni oldini olish
-  document.addEventListener(
-    'touchmove',
-    (e) => {
-      // Faqat scroll bo'lmaydigan elementlarda bloklash
-      const target = e.target as HTMLElement;
-      const scrollable = target.closest('[data-scrollable]') || target.closest('.overflow-y-auto') || target.closest('.overflow-auto');
-      if (!scrollable) {
-        e.preventDefault();
-      }
-    },
-    { passive: false },
-  );
 }
 
 // ── Platformani aniqlash ─────────────────────────────────────

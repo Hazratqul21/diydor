@@ -70,8 +70,18 @@ export class AuthService {
    * TMA initData orqali kirish: imzo tekshiriladi, user upsert qilinadi,
    * JWT qaytariladi.
    */
-  async loginWithTelegram(initData: string) {
-    const tgUser = this.resolveTelegramUser(initData);
+  async loginWithTelegram(initData: string, ref?: string) {
+    const { user: tgUser, startParam } = this.resolveTelegramUser(initData);
+
+    // Referal atributsiyasi FAQAT yangi user yaratilganda (qayta kirishda emas).
+    // start_param (imzolangan) ustuvor; bo'lmasa ref (web_app ?ref= zaxira yo'li).
+    const existing = await this.prisma.user.findUnique({
+      where: { telegramId: BigInt(tgUser.id) },
+      select: { id: true },
+    });
+    const referralCodeId = existing
+      ? undefined
+      : await this.resolveReferralId(startParam ?? ref);
 
     const user = await this.prisma.user.upsert({
       where: { telegramId: BigInt(tgUser.id) },
@@ -90,6 +100,7 @@ export class AuthService {
         lastName: tgUser.last_name,
         languageCode: tgUser.language_code ?? 'uz',
         photoUrl: tgUser.photo_url,
+        referralCodeId,
       },
     });
 
@@ -115,10 +126,11 @@ export class AuthService {
    * Mehmon (anonim) kirish — mustaqil ilova uchun. Login ekranisiz yangi user
    * yaratadi va JWT qaytaradi. Keyinchalik telefon OTP bilan bog'lanadi.
    */
-  async loginAsGuest(firstName?: string) {
+  async loginAsGuest(firstName?: string, ref?: string) {
     const user = await this.prisma.user.create({
       data: {
         firstName: firstName?.trim() || 'Mehmon',
+        referralCodeId: await this.resolveReferralId(ref),
       },
     });
 
@@ -135,7 +147,7 @@ export class AuthService {
     };
   }
 
-  private resolveTelegramUser(initData: string): TelegramUser {
+  private resolveTelegramUser(initData: string): { user: TelegramUser; startParam?: string } {
     // XAVFSIZLIK: dev bypass PRODUCTIONDA hech qachon ishlamaydi (env qiymatidan qat'i nazar)
     const isProd = this.config.get<string>('NODE_ENV') === 'production';
     const devBypass = !isProd && this.config.get<string>('AUTH_DEV_BYPASS') === 'true';
@@ -150,16 +162,37 @@ export class AuthService {
         if (!parsed.id || !parsed.first_name) {
           throw new Error('id va first_name kerak');
         }
-        return parsed as TelegramUser;
+        return { user: parsed as TelegramUser, startParam: parsed.start_param };
       } catch (e) {
         throw new UnauthorizedException(`Dev bypass payload xato: ${(e as Error).message}`);
       }
     }
 
     try {
-      return verifyTelegramInitData(initData, botToken).user;
+      const verified = verifyTelegramInitData(initData, botToken);
+      return { user: verified.user, startParam: verified.startParam };
     } catch (e) {
       throw new UnauthorizedException((e as Error).message);
+    }
+  }
+
+  /**
+   * Referal kod bo'yicha faol ReferralCode id sini topadi.
+   * "ref_" prefiksi va katta-kichik harf farqiga chidamli. Topilmasa undefined
+   * (login hech qachon referal sabab yiqilmaydi).
+   */
+  private async resolveReferralId(code?: string): Promise<string | undefined> {
+    if (!code) return undefined;
+    const clean = code.trim().replace(/^ref[_-]?/i, '').toLowerCase();
+    if (!clean || clean.length > 64) return undefined;
+    try {
+      const rc = await this.prisma.referralCode.findFirst({
+        where: { code: clean, isActive: true },
+        select: { id: true },
+      });
+      return rc?.id;
+    } catch {
+      return undefined;
     }
   }
 

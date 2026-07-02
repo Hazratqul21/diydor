@@ -14,6 +14,8 @@ export interface VerifiedInitData {
   user: TelegramUser;
   authDate: number;
   queryId?: string;
+  /** t.me/<bot>?startapp=<...> orqali kelgan parametr (referal atributsiyasi). */
+  startParam?: string;
 }
 
 /**
@@ -93,5 +95,6 @@ export function verifyTelegramInitData(
     user,
     authDate,
     queryId: params.get('query_id') ?? undefined,
+    startParam: params.get('start_param') ?? undefined,
   };
 }

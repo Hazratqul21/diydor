@@ -351,6 +351,76 @@ export class AdminService {
     return { match: { id: match.id, userA: match.userA, userB: match.userB }, messages };
   }
 
+  // ─────────────── Referal (promouterlar) ───────────────
+
+  /** Barcha referal kodlar + statistika (qo'shilgan / tasdiqlangan userlar). */
+  async listReferrals() {
+    const codes = await this.prisma.referralCode.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: { _count: { select: { users: true } } },
+    });
+    const verified = await this.prisma.user.groupBy({
+      by: ['referralCodeId'],
+      where: { referralCodeId: { not: null }, isVerified: true },
+      _count: { _all: true },
+    });
+    const vMap = new Map(verified.map((v) => [v.referralCodeId, v._count._all]));
+
+    const bot = process.env.TELEGRAM_BOT_USERNAME || 'diydorapp_bot';
+    const appUrl = (process.env.APP_PUBLIC_URL || 'https://diydorapp.uz').replace(/\/$/, '');
+    return codes.map((c) => ({
+      id: c.id,
+      code: c.code,
+      name: c.name,
+      isActive: c.isActive,
+      createdAt: c.createdAt,
+      joined: c._count.users,
+      verified: vMap.get(c.id) ?? 0,
+      link: `https://t.me/${bot}?startapp=${c.code}`,
+      webLink: `${appUrl}/?ref=${c.code}`,
+    }));
+  }
+
+  /** Yangi referal kod: berilsa shu kod, aks holda tasodifiy 6 belgi. */
+  async createReferral(name: string, code?: string) {
+    const clean = (code ?? '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    let final = clean;
+    if (final) {
+      const exists = await this.prisma.referralCode.findUnique({ where: { code: final } });
+      if (exists) throw new BadRequestException('Bu kod band. Boshqasini kiriting.');
+    } else {
+      // O'qishda adashtiradigan belgilarsiz (0/o, 1/l/i) tasodifiy kod
+      const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
+      do {
+        final = Array.from(
+          { length: 6 },
+          () => alphabet[Math.floor(Math.random() * alphabet.length)],
+        ).join('');
+      } while (await this.prisma.referralCode.findUnique({ where: { code: final } }));
+    }
+    return this.prisma.referralCode.create({ data: { name: name.trim(), code: final } });
+  }
+
+  /** Kodni faol/nofaol qilish (nofaol kod yangi userga biriktirilmaydi). */
+  async toggleReferral(id: string) {
+    const rc = await this.prisma.referralCode.findUnique({ where: { id } });
+    if (!rc) throw new NotFoundException('Referal topilmadi');
+    return this.prisma.referralCode.update({
+      where: { id },
+      data: { isActive: !rc.isActive },
+    });
+  }
+
+  /** Kodni o'chirish (userlardagi bog'lanish SetNull bo'ladi). */
+  async deleteReferral(id: string) {
+    try {
+      await this.prisma.referralCode.delete({ where: { id } });
+    } catch {
+      throw new NotFoundException('Referal topilmadi');
+    }
+    return { ok: true };
+  }
+
   // ─────────────── Helper ───────────────
 
   private serialize(user: any) {

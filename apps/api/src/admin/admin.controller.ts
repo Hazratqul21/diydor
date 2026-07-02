@@ -12,6 +12,7 @@ import {
 import { AdminService } from './admin.service';
 import { AdminGuard } from './admin.guard';
 import {
+  CreateReferralDto,
   UpdateConfigDto,
   UpdatePaymentConfigDto,
   UploadWelcomeImageDto,
@@ -147,5 +148,26 @@ export class AdminController {
   @Get('chats/:matchId/messages')
   chatMessages(@Param('matchId') matchId: string) {
     return this.admin.getChatMessages(matchId);
+  }
+
+  // ── Referal (promouter linklari) ──
+  @Get('referrals')
+  referrals() {
+    return this.admin.listReferrals();
+  }
+
+  @Post('referrals')
+  createReferral(@Body() dto: CreateReferralDto) {
+    return this.admin.createReferral(dto.name, dto.code);
+  }
+
+  @Post('referrals/:id/toggle')
+  toggleReferral(@Param('id') id: string) {
+    return this.admin.toggleReferral(id);
+  }
+
+  @Delete('referrals/:id')
+  deleteReferral(@Param('id') id: string) {
+    return this.admin.deleteReferral(id);
   }
 }

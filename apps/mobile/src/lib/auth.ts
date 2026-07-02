@@ -73,6 +73,30 @@ function telegramInitData(): string | undefined {
   return undefined;
 }
 
+const REF_KEY = 'diydor_ref';
+
+/**
+ * Referal kodi (?ref=... URL parametri) — birinchi ochilishda saqlab qo'yamiz,
+ * chunki SPA navigatsiyada query yo'qoladi. Telegram oqimida kerak emas
+ * (server initData.start_param dan o'zi oladi).
+ */
+export function captureRef(): void {
+  try {
+    const ref = new URLSearchParams(location.search).get('ref');
+    if (ref) sessionStorage.setItem(REF_KEY, ref);
+  } catch {
+    /* sessionStorage yo'q bo'lsa jim */
+  }
+}
+
+function storedRef(): string | undefined {
+  try {
+    return sessionStorage.getItem(REF_KEY) ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * MAVJUD sessiyani aniqlaydi — YANGI mehmon YARATMAYDI.
  * 1) localStorage'da token bo'lsa — uni saqlaymiz.
@@ -86,9 +110,10 @@ export async function resolveExistingSession(): Promise<boolean> {
   const initData = telegramInitData();
   if (initData) {
     try {
+      const ref = storedRef();
       const { token } = await apiFetch<{ token: string }>('/auth/telegram', {
         method: 'POST',
-        body: JSON.stringify({ initData }),
+        body: JSON.stringify(ref ? { initData, ref } : { initData }),
       });
       setToken(token);
       return true;
@@ -129,9 +154,10 @@ export async function ensureGuestSession(): Promise<void> {
   const initData = telegramInitData();
   if (initData) {
     try {
+      const tgRef = storedRef();
       const { token } = await apiFetch<{ token: string }>('/auth/telegram', {
         method: 'POST',
-        body: JSON.stringify({ initData }),
+        body: JSON.stringify(tgRef ? { initData, ref: tgRef } : { initData }),
       });
       setToken(token);
       return;
@@ -140,9 +166,10 @@ export async function ensureGuestSession(): Promise<void> {
     }
   }
 
+  const ref = storedRef();
   const { token } = await apiFetch<{ token: string }>('/auth/guest', {
     method: 'POST',
-    body: JSON.stringify({}),
+    body: JSON.stringify(ref ? { ref } : {}),
   });
   setToken(token);
 }
