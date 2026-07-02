@@ -6,6 +6,7 @@ import Dashboard from './screens/Dashboard';
 import Users from './screens/Users';
 import Orders from './screens/Orders';
 import Reports from './screens/Reports';
+import Chats from './screens/Chats';
 import Plans from './screens/Plans';
 import Withdrawals from './screens/Withdrawals';
 import Settings from './screens/Settings';
@@ -23,6 +24,7 @@ export default function App() {
       <Route path="/users" element={<Protected><Users /></Protected>} />
       <Route path="/orders" element={<Protected><Orders /></Protected>} />
       <Route path="/reports" element={<Protected><Reports /></Protected>} />
+      <Route path="/chats" element={<Protected><Chats /></Protected>} />
       <Route path="/plans" element={<Protected><Plans /></Protected>} />
       <Route path="/withdrawals" element={<Protected><Withdrawals /></Protected>} />
       <Route path="/settings" element={<Protected><Settings /></Protected>} />

@@ -137,4 +137,15 @@ export class AdminController {
   resolveReport(@Param('id') id: string) {
     return this.admin.resolveReport(id);
   }
+
+  // ── Chat boshqaruvi (moderatsiya) ──
+  @Get('chats')
+  chats(@Query('page') page?: string) {
+    return this.admin.listChats(page ? Number(page) : 1);
+  }
+
+  @Get('chats/:matchId/messages')
+  chatMessages(@Param('matchId') matchId: string) {
+    return this.admin.getChatMessages(matchId);
+  }
 }

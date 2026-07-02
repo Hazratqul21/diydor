@@ -7,6 +7,7 @@ const NAV = [
   { to: '/users', label: 'Foydalanuvchilar', icon: 'group' },
   { to: '/orders', label: "To'lovlar", icon: 'receipt_long' },
   { to: '/withdrawals', label: 'Pul yechish', icon: 'account_balance_wallet' },
+  { to: '/chats', label: 'Suhbatlar', icon: 'forum' },
   { to: '/reports', label: 'Shikoyatlar', icon: 'flag' },
   { to: '/plans', label: 'Tariflar', icon: 'workspace_premium' },
   { to: '/settings', label: 'Sozlamalar', icon: 'settings' },

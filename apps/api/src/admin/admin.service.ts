@@ -303,6 +303,54 @@ export class AdminService {
     return { ok: true };
   }
 
+  // ─────────────── Chat boshqaruvi (moderatsiya) ───────────────
+
+  /** Barcha suhbatlar — ikkala foydalanuvchi + oxirgi xabar + xabar soni. */
+  async listChats(page = 1, limit = 30) {
+    const sel = { id: true, firstName: true, username: true, gender: true };
+    const [rows, total] = await Promise.all([
+      this.prisma.match.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          userA: { select: sel },
+          userB: { select: sel },
+          messages: { orderBy: { createdAt: 'desc' }, take: 1 },
+          _count: { select: { messages: true } },
+        },
+      }),
+      this.prisma.match.count(),
+    ]);
+    const items = rows.map((m) => ({
+      id: m.id,
+      createdAt: m.createdAt,
+      closed: m.closedAt != null,
+      userA: m.userA,
+      userB: m.userB,
+      messageCount: m._count.messages,
+      lastMessage: m.messages[0] ?? null,
+    }));
+    return { items, total, page, limit };
+  }
+
+  /** Bitta suhbatning barcha xabarlari (moderatsiya uchun). */
+  async getChatMessages(matchId: string) {
+    const match = await this.prisma.match.findUnique({
+      where: { id: matchId },
+      include: {
+        userA: { select: { id: true, firstName: true } },
+        userB: { select: { id: true, firstName: true } },
+      },
+    });
+    if (!match) throw new NotFoundException('Suhbat topilmadi');
+    const messages = await this.prisma.message.findMany({
+      where: { matchId },
+      orderBy: { createdAt: 'asc' },
+    });
+    return { match: { id: match.id, userA: match.userA, userB: match.userB }, messages };
+  }
+
   // ─────────────── Helper ───────────────
 
   private serialize(user: any) {
